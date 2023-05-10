@@ -374,6 +374,7 @@ int main()
     std::list<Entity*> enemies; //список врагов
     std::list<Entity*> Bullets; //список пуль
     std::list<Entity*>::iterator it; //итератор чтобы проходить по элементам списка
+    std::list<Entity*>::iterator it1;
     const int ENEMY_COUNT = 1; //максимальное количество врагов в игре
     int enemiesCount = 0; //текущее количество врагов в игре
     //Заполняем список объектами врагами
@@ -443,6 +444,22 @@ int main()
 
                 }
             }
+        }
+
+        if (p.life == true){ //если игрок жив
+            //бежим по списку пуль
+            for (it = Bullets.begin(); it != Bullets.end(); it++){
+                for (it1 = enemies.begin(); it1 != enemies.end(); it1++){
+                    if ((*it)->getRect().intersects((*it1)->getRect()))
+                    {
+
+                        it1 = enemies.erase(it1);
+                        it = enemies.erase(it);
+
+                    }
+                }
+            }
+
         }
 
         window.clear();
