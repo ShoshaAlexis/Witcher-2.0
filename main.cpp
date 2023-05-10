@@ -7,7 +7,7 @@
 
 
 using namespace sf;
-
+int NPCDIAL=0;
 class Entity {
 public:
     enum { left, right, up, down, stay} state;// тип перечисления - состояние объекта
@@ -87,9 +87,9 @@ public:
                     if (Dx < 0) { x = j * 32 + 32; dx = 0; }// с левым краем карты
                 }
                 if (TileMap[i][j] == 's') {
-                    std::cout << "Hey friend" << std::endl;
-
+                    NPCDIAL=1;
                 }
+                else NPCDIAL=0;
                 if (TileMap[i][j] == 'f') {
 
                     TileMap[i][j] = 'h';//убрали цветок
@@ -282,14 +282,13 @@ public:
 
 int main()
 {
-
+    float dialnum=0;
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
     sf::RenderWindow window(sf::VideoMode(800, 800, desktop.bitsPerPixel), "The Witcher 4");
 
     Font font;//шрифт
     font.loadFromFile("CyrilicOld.ttf");//передаем нашему шрифту файл шрифта
     Text text("", font, 20);//создаем объект текст
-    text.setColor(Color::Red);//покрасили текст в красный
     text.setStyle(Text::Bold);//жирный текст.
 
     Image map_image;//объект изображения для карты
@@ -412,6 +411,29 @@ int main()
 //            if ((*it)->life) //если пули живы
 //                window.draw((*it)->sprite); //рисуем объекты
 //        }
+if (NPCDIAL==1)
+{
+if (dialnum==0)
+{
+        text.setString("Greetings,do you remember ho did you get here?");//задаем строку тексту
+        text.setPosition(50, 50);//задаем позицию текста, отступая от центра камеры
+        window.draw(text);//рисую этот текст
+}
+if ((dialnum>0)&&(dialnum<2))
+{
+    text.setString("Nevermind, at the end of this dungeon, all the answers await");//задаем строку тексту
+    text.setPosition(50, 50);//задаем позицию текста, отступая от центра камеры
+    window.draw(text);//рисую этот текст
+}
+if (dialnum>2)
+{
+    text.setString("Take my belongings from that chest, it will help you in tour journey");//задаем строку тексту
+    text.setPosition(50, 50);//задаем позицию текста, отступая от центра камеры
+    window.draw(text);//рисую этот текст
+}
+if (Keyboard::isKeyPressed(Keyboard::Space))
+    dialnum=dialnum+0.01;
+}
         window.display();
     }
     return 0;
