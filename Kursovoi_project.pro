@@ -21,4 +21,3 @@ qtcAddDeployment()
 
 HEADERS += \
     map.h
-
