@@ -10,7 +10,7 @@ using namespace sf;
 int NPCDIAL=0;
 class Entity {
 public:
-    enum { left, right, up, down, stay} state;// тип перечисления - состояние объекта
+    enum { left, right, up, down, stay, upleft, upright, downleft, downright} state;// тип перечисления - состояние объекта
     float dx, dy, x, y, speed, moveTimer;//добавили переменную таймер для будущих целей
     int w, h, health; //переменная “health”, хранящая жизни игрока
     bool life; //переменная “life” жизнь, логическая
@@ -73,6 +73,24 @@ public:
             state = down;
             speed = 0.1;
         }
+        if ((Keyboard::isKeyPressed(Keyboard::Up) || Keyboard::isKeyPressed(Keyboard::W))&&(Keyboard::isKeyPressed(Keyboard::Left) || Keyboard::isKeyPressed(Keyboard::A))) {
+            state = upleft;
+            speed = 0.1;
+        }
+
+        if ((Keyboard::isKeyPressed(Keyboard::Down) || Keyboard::isKeyPressed(Keyboard::W))&&(Keyboard::isKeyPressed(Keyboard::Left) || Keyboard::isKeyPressed(Keyboard::A))) {
+            state = downleft;
+            speed = 0.1;
+        }
+        if ((Keyboard::isKeyPressed(Keyboard::Up) || Keyboard::isKeyPressed(Keyboard::W))&&(Keyboard::isKeyPressed(Keyboard::Right) || Keyboard::isKeyPressed(Keyboard::A))) {
+            state = upright;
+            speed = 0.1;
+        }
+        if ((Keyboard::isKeyPressed(Keyboard::Down) || Keyboard::isKeyPressed(Keyboard::W))&&(Keyboard::isKeyPressed(Keyboard::Right) || Keyboard::isKeyPressed(Keyboard::A))) {
+            state = downright;
+            speed = 0.1;
+        }
+
     }
     //Метод проверки столкновений с элементами карты
     void checkCollisionWithMap(float Dx, float Dy) {
@@ -105,6 +123,8 @@ public:
             control();//функция управления персонажем
             switch (state)//делаются различные действия в зависимости от состояния
             {
+            dx = 0;
+            dy = 0;
             case right:{//состояние идти вправо
                 dx = speed;
                 CurrentFrame += 0.005*time;
@@ -133,6 +153,38 @@ public:
                 sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 0, 96, 96));
                 break;
             }
+            case upright:{//состояние идти вправо
+                dx = speed;
+                dy = -speed;
+                CurrentFrame += 0.005*time;
+                if (CurrentFrame > 3) CurrentFrame -= 3;
+                sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 288, 96, 96));
+                break;
+            }
+            case upleft:{//состояние идти влево
+                dx = -speed;
+                dy = -speed;
+                CurrentFrame += 0.005*time;
+                if (CurrentFrame > 3) CurrentFrame -= 3;
+                sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 288, 96, 96));
+                break;
+            }
+            case downright:{//идти вверх
+                dy = speed;
+                dx = speed;
+                CurrentFrame += 0.005*time;
+                if (CurrentFrame > 3) CurrentFrame -= 3;
+                sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 0, 96, 96));
+                break;
+            }
+            case downleft:{//идти вниз
+                dy = speed;
+                dx = -speed;
+                CurrentFrame += 0.005*time;
+                if (CurrentFrame > 3) CurrentFrame -= 3;
+                sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 0, 96, 96));
+                break;
+            }
             case stay:{//стоим
                 dy = speed;
                 dx = speed;
@@ -145,6 +197,8 @@ public:
             checkCollisionWithMap(0, dy);//обрабатываем столкновение по Y
             speed = 0; //обнуляем скорость, чтобы персонаж остановился.
             //state = stay;
+            dx = 0;
+            dy = 0;
             sprite.setPosition(x, y); //спрайт в позиции (x, y).
             if (health <= 0){ life = false; }//если жизней меньше 0, либо равно 0, то умираем
         }
@@ -313,7 +367,7 @@ int main()
     std::list<Entity*> enemies; //список врагов
     //std::list<Entity*> Bullets; //список пуль
     std::list<Entity*>::iterator it; //итератор чтобы проходить по элементам списка
-    const int ENEMY_COUNT = 3; //максимальное количество врагов в игре
+    const int ENEMY_COUNT = 0; //максимальное количество врагов в игре
     int enemiesCount = 0; //текущее количество врагов в игре
     //Заполняем список объектами врагами
     for (int i = 0; i < ENEMY_COUNT; i++)
