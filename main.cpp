@@ -27,7 +27,7 @@ public:
         dx = 0; dy = 0;
         speed = 0;
         CurrentFrame = 0;
-        health = 100;
+        health = 1000;
         life = true; //инициализировали логическую переменную жизни, герой жив
         texture.loadFromImage(image); //заносим наше изображение в текстуру
         sprite.setTexture(texture); //заливаем спрайт текстурой
@@ -237,48 +237,48 @@ public:
     }
 };//класс Enemy закрыт
 ////////////////////////////КЛАСС ПУЛИ////////////////////////
-//            class Bullet :public Entity{//класс пули
-//            public:
-//            int direction;//направление пули
-//            //всё так же, только взяли в конце состояние игрока (int dir)
-//            //для задания направления полёта пули
-//            Bullet(Image &image, float X, float Y, int W, int H, std::string Name, int dir)
-//            :Entity(image, X, Y, W, H, Name){
-//            x = X;
-//            y = Y;
-//            direction = dir;
-//            speed = 0.8;
-//            w = h = 16;
-//            life = true;
-//            //выше инициализация в конструкторе
-//            }
-//            void update(float time)
-//            {
-//            switch (direction)
-//            {
-//            case 0: dx = -speed; dy = 0; break;// state = left
-//            case 1: dx = speed; dy = 0; break;// state = right
-//            case 2: dx = 0; dy = -speed; break;// state = up
-//            case 3: dx = 0; dy = speed; break;// state = down
-//            }
-//            if (life){
-//            x += dx*time;//само движение пули по х
-//            y += dy*time;//по у
-//            if (x <= 0) x = 20;// задержка пули в левой стене, чтобы при проседании кадров она случайно не вылетела за предел карты и не было ошибки (сервер может тормозить!)
-//            if (y <= 0) y = 20;
-//            if (x >= 800) x = 780;// задержка пули в правой стене, чтобы при проседании
-//           // кадров она случайно не вылетела за предел карты и не было ошибки (сервер может тормозить!)
-//            if (y >= 640) y = 620;
-//            for (int i = y / 32; i < (y + h) / 32; i++)//проходимся по элементам карты
-//            for (int j = x / 32; j < (x + w) / 32; j++)
-//            {
-//            if (TileMap[i][j] == '0')//если элемент наш тайлик земли, то
-//            life = false;// то пуля умирает
-//            }
-//            sprite.setPosition(x + w / 2, y + h / 2);//задается позицию пули
-//            }
-//            }
-//            };
+            class Bullet :public Entity{//класс пули
+            public:
+            int direction;//направление пули
+            //всё так же, только взяли в конце состояние игрока (int dir)
+            //для задания направления полёта пули
+            Bullet(Image &image, float X, float Y, int W, int H, std::string Name, int dir)
+            :Entity(image, X, Y, W, H, Name){
+            x = X;
+            y = Y;
+            direction = dir;
+            speed = 0.8;
+            w = h = 16;
+            life = true;
+            //выше инициализация в конструкторе
+            }
+            void update(float time)
+            {
+            switch (direction)
+            {
+            case 0: dx = -speed; dy = 0; break;// state = left
+            case 1: dx = speed; dy = 0; break;// state = right
+            case 2: dx = 0; dy = -speed; break;// state = up
+            case 3: dx = 0; dy = speed; break;// state = down
+            }
+            if (life){
+            x += dx*time;//само движение пули по х
+            y += dy*time;//по у
+            if (x <= 0) x = 20;// задержка пули в левой стене, чтобы при проседании кадров она случайно не вылетела за предел карты и не было ошибки (сервер может тормозить!)
+            if (y <= 0) y = 20;
+            if (x >= 800) x = 780;// задержка пули в правой стене, чтобы при проседании
+           // кадров она случайно не вылетела за предел карты и не было ошибки (сервер может тормозить!)
+            if (y >= 640) y = 620;
+            for (int i = y / 32; i < (y + h) / 32; i++)//проходимся по элементам карты
+            for (int j = x / 32; j < (x + w) / 32; j++)
+            {
+            if (TileMap[i][j] == '0')//если элемент наш тайлик земли, то
+            life = false;// то пуля умирает
+            }
+            sprite.setPosition(x + w / 2, y + h / 2);//задается позицию пули
+            }
+            }
+            };
 
 int main()
 {
@@ -308,13 +308,13 @@ int main()
     Image easyEnemyImage;
 
     easyEnemyImage.loadFromFile("images/enemy.png"); // загружаем изображение врага
-    //Image BulletImage;//изображение для пули
-    //BulletImage.loadFromFile("images/bullet.png");//загрузили картинку в объект изображения
+    Image BulletImage;//изображение для пули
+    BulletImage.loadFromFile("images/bullet.png");//загрузили картинку в объект изображения
     Player p(heroImage, 100, 100, 96, 96, "Player1");//объект класса игрока
     std::list<Entity*> enemies; //список врагов
-    //std::list<Entity*> Bullets; //список пуль
+    std::list<Entity*> Bullets; //список пуль
     std::list<Entity*>::iterator it; //итератор чтобы проходить по элементам списка
-    const int ENEMY_COUNT = 3; //максимальное количество врагов в игре
+    const int ENEMY_COUNT = 1; //максимальное количество врагов в игре
     int enemiesCount = 0; //текущее количество врагов в игре
     //Заполняем список объектами врагами
     for (int i = 0; i < ENEMY_COUNT; i++)
@@ -344,14 +344,14 @@ int main()
         {
             if (event.type == sf::Event::Closed)
                 window.close();
-//            //стреляем по нажатию клавиши "P"
-//            if (event.type == sf::Event::KeyPressed)
-//            {
-//                if (event.key.code == sf::Keyboard::P)
-//                {
-//                    Bullets.push_back(new Bullet(BulletImage, p.x, p.y, 16, 16, "Bullet", p.state));
-//                }
-//            }
+            //стреляем по нажатию клавиши "P"
+            if (event.type == sf::Event::KeyPressed)
+            {
+                if (event.key.code == sf::Keyboard::P)
+                {
+                    Bullets.push_back(new Bullet(BulletImage, p.x, p.y, 16, 16, "Bullet", p.state));
+                }
+            }
         }
         p.update(time); //оживляем объект “p” класса “Player”
         //оживляем врагов
@@ -360,16 +360,16 @@ int main()
             (*it)->update(time); //запускаем метод update()
         }
         //оживляем пули
-//        for (it = Bullets.begin(); it != Bullets.end(); it++)
-//        {
-//            (*it)->update(time); //запускаем метод update()
-//        }
+        for (it = Bullets.begin(); it != Bullets.end(); it++)
+        {
+            (*it)->update(time); //запускаем метод update()
+        }
         //Проверяем список на наличие "мертвых" пуль и удаляем их
-//        for (it = Bullets.begin(); it != Bullets.end(); )//говорим что проходимся от начала до конца
-//        {// если этот объект мертв, то удаляем его
-//            if ((*it)-> life == false) { it = Bullets.erase(it); }
-//            else it++;//и идем курсором (итератором) к след объекту.
-//        }
+        for (it = Bullets.begin(); it != Bullets.end(); )//говорим что проходимся от начала до конца
+        {// если этот объект мертв, то удаляем его
+            if ((*it)-> life == false) { it = Bullets.erase(it); }
+            else it++;//и идем курсором (итератором) к след объекту.
+        }
         //Проверка пересечения игрока с врагами
         //Если пересечение произошло, то "health = 0", игрок обездвижевается и
         //выводится сообщение "you are lose"
@@ -406,12 +406,12 @@ int main()
             if ((*it)->life) //если враги живы
                 window.draw((*it)->sprite); //рисуем
         }
-        //рисуем пули
-//        for (it = Bullets.begin(); it != Bullets.end(); it++)
-//        {
-//            if ((*it)->life) //если пули живы
-//                window.draw((*it)->sprite); //рисуем объекты
-//        }
+//        рисуем пули
+        for (it = Bullets.begin(); it != Bullets.end(); it++)
+        {
+            if ((*it)->life) //если пули живы
+                window.draw((*it)->sprite); //рисуем объекты
+        }
         window.display();
     }
     return 0;
