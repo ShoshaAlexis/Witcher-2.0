@@ -4,6 +4,7 @@
 #include "map.h"
 #include <cmath>
 #include <list>
+#include <windows.h>
 
 
 using namespace sf;
@@ -74,23 +75,22 @@ public:
             speed = 0.1;
         }
         if ((Keyboard::isKeyPressed(Keyboard::Up) || Keyboard::isKeyPressed(Keyboard::W))&&(Keyboard::isKeyPressed(Keyboard::Left) || Keyboard::isKeyPressed(Keyboard::A))) {
-            state = upleft;
-            speed = 0.1;
-        }
+                   state = upleft;
+                   speed = 0.1;
+               }
 
-        if ((Keyboard::isKeyPressed(Keyboard::Down) || Keyboard::isKeyPressed(Keyboard::W))&&(Keyboard::isKeyPressed(Keyboard::Left) || Keyboard::isKeyPressed(Keyboard::A))) {
-            state = downleft;
-            speed = 0.1;
-        }
-        if ((Keyboard::isKeyPressed(Keyboard::Up) || Keyboard::isKeyPressed(Keyboard::W))&&(Keyboard::isKeyPressed(Keyboard::Right) || Keyboard::isKeyPressed(Keyboard::A))) {
-            state = upright;
-            speed = 0.1;
-        }
-        if ((Keyboard::isKeyPressed(Keyboard::Down) || Keyboard::isKeyPressed(Keyboard::W))&&(Keyboard::isKeyPressed(Keyboard::Right) || Keyboard::isKeyPressed(Keyboard::A))) {
-            state = downright;
-            speed = 0.1;
-        }
-
+               if ((Keyboard::isKeyPressed(Keyboard::Down) || Keyboard::isKeyPressed(Keyboard::S))&&(Keyboard::isKeyPressed(Keyboard::Left) || Keyboard::isKeyPressed(Keyboard::A))) {
+                   state = downleft;
+                   speed = 0.1;
+               }
+               if ((Keyboard::isKeyPressed(Keyboard::Up) || Keyboard::isKeyPressed(Keyboard::W))&&(Keyboard::isKeyPressed(Keyboard::Right) || Keyboard::isKeyPressed(Keyboard::D))) {
+                   state = upright;
+                   speed = 0.1;
+               }
+               if ((Keyboard::isKeyPressed(Keyboard::Down) || Keyboard::isKeyPressed(Keyboard::S))&&(Keyboard::isKeyPressed(Keyboard::Right) || Keyboard::isKeyPressed(Keyboard::D))) {
+                   state = downright;
+                   speed = 0.1;
+               }
     }
     //Метод проверки столкновений с элементами карты
     void checkCollisionWithMap(float Dx, float Dy) {
@@ -104,16 +104,23 @@ public:
                     if (Dx > 0) { x = j * 32 - w; dx = 0; }//с правым краем карты
                     if (Dx < 0) { x = j * 32 + 32; dx = 0; }// с левым краем карты
                 }
-                if (TileMap[i][j] == 's') {
+                if (TileMap[i][j] == 'S' || TileMap[i+1][j] == 'S'|| TileMap[i][j] == 'G' || TileMap[i+1][j] == 'G' )
+                {
                     NPCDIAL=1;
                 }
-                else NPCDIAL=0;
-                if (TileMap[i][j] == 'f') {
 
-                    TileMap[i][j] = 'h';//убрали цветок
+                else NPCDIAL=0;
+                if (TileMap[i][j] == 'C' ) { //закрытый сундук
+
+                    TileMap[i][j] = 'N';//открытый сундук
+                    TileMap[i][j+1] = 'n';//открытый сундук
+                    TileMap[i+1][j] = 'U';//открытый сундук
+                    TileMap[i+1][j+1] = 'u';//открытый сундук
+                    TileMap[i][j-2] = 'h'; // Хилка
                 }
                 if (TileMap[i][j] == 'h') {
-
+                    TileMap[i][j] = ' ';
+                    health += 25;
                 }
             }
     }
@@ -123,8 +130,6 @@ public:
             control();//функция управления персонажем
             switch (state)//делаются различные действия в зависимости от состояния
             {
-            dx = 0;
-            dy = 0;
             case right:{//состояние идти вправо
                 dx = speed;
                 CurrentFrame += 0.005*time;
@@ -154,37 +159,37 @@ public:
                 break;
             }
             case upright:{//состояние идти вправо
-                dx = speed;
-                dy = -speed;
-                CurrentFrame += 0.005*time;
-                if (CurrentFrame > 3) CurrentFrame -= 3;
-                sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 288, 96, 96));
-                break;
-            }
-            case upleft:{//состояние идти влево
-                dx = -speed;
-                dy = -speed;
-                CurrentFrame += 0.005*time;
-                if (CurrentFrame > 3) CurrentFrame -= 3;
-                sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 288, 96, 96));
-                break;
-            }
-            case downright:{//идти вверх
-                dy = speed;
-                dx = speed;
-                CurrentFrame += 0.005*time;
-                if (CurrentFrame > 3) CurrentFrame -= 3;
-                sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 0, 96, 96));
-                break;
-            }
-            case downleft:{//идти вниз
-                dy = speed;
-                dx = -speed;
-                CurrentFrame += 0.005*time;
-                if (CurrentFrame > 3) CurrentFrame -= 3;
-                sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 0, 96, 96));
-                break;
-            }
+                            dx = speed;
+                            dy = -speed;
+                            CurrentFrame += 0.005*time;
+                            if (CurrentFrame > 3) CurrentFrame -= 3;
+                            sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 288, 96, 96));
+                            break;
+                        }
+                        case upleft:{//состояние идти влево
+                            dx = -speed;
+                            dy = -speed;
+                            CurrentFrame += 0.005*time;
+                            if (CurrentFrame > 3) CurrentFrame -= 3;
+                            sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 288, 96, 96));
+                            break;
+                        }
+                        case downright:{//идти вверх
+                            dy = speed;
+                            dx = speed;
+                            CurrentFrame += 0.005*time;
+                            if (CurrentFrame > 3) CurrentFrame -= 3;
+                            sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 0, 96, 96));
+                            break;
+                        }
+                        case downleft:{//идти вниз
+                            dy = speed;
+                            dx = -speed;
+                            CurrentFrame += 0.005*time;
+                            if (CurrentFrame > 3) CurrentFrame -= 3;
+                            sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 0, 96, 96));
+                            break;
+                        }
             case stay:{//стоим
                 dy = speed;
                 dx = speed;
@@ -282,7 +287,9 @@ public:
                 }
                 }
                 x += dx*time; //движение по “X”
-                checkCollisionWithMap(dx, 0);//обрабатываем столкновение по Хy += dy*time; //движение по “Y”
+
+                checkCollisionWithMap(dx, 0);//обрабатываем столкновение по Хy += dy*time;
+                y += dy*time;//движение по “Y”
                 checkCollisionWithMap(0, dy);//обрабатываем столкновение по Y
                 sprite.setPosition(x, y); //спрайт в позиции (x, y).
                 if (health <= 0){ life = false; }//если жизней меньше 0, либо равно 0, то умираем
@@ -291,48 +298,48 @@ public:
     }
 };//класс Enemy закрыт
 ////////////////////////////КЛАСС ПУЛИ////////////////////////
-//            class Bullet :public Entity{//класс пули
-//            public:
-//            int direction;//направление пули
-//            //всё так же, только взяли в конце состояние игрока (int dir)
-//            //для задания направления полёта пули
-//            Bullet(Image &image, float X, float Y, int W, int H, std::string Name, int dir)
-//            :Entity(image, X, Y, W, H, Name){
-//            x = X;
-//            y = Y;
-//            direction = dir;
-//            speed = 0.8;
-//            w = h = 16;
-//            life = true;
-//            //выше инициализация в конструкторе
-//            }
-//            void update(float time)
-//            {
-//            switch (direction)
-//            {
-//            case 0: dx = -speed; dy = 0; break;// state = left
-//            case 1: dx = speed; dy = 0; break;// state = right
-//            case 2: dx = 0; dy = -speed; break;// state = up
-//            case 3: dx = 0; dy = speed; break;// state = down
-//            }
-//            if (life){
-//            x += dx*time;//само движение пули по х
-//            y += dy*time;//по у
-//            if (x <= 0) x = 20;// задержка пули в левой стене, чтобы при проседании кадров она случайно не вылетела за предел карты и не было ошибки (сервер может тормозить!)
-//            if (y <= 0) y = 20;
-//            if (x >= 800) x = 780;// задержка пули в правой стене, чтобы при проседании
-//           // кадров она случайно не вылетела за предел карты и не было ошибки (сервер может тормозить!)
-//            if (y >= 640) y = 620;
-//            for (int i = y / 32; i < (y + h) / 32; i++)//проходимся по элементам карты
-//            for (int j = x / 32; j < (x + w) / 32; j++)
-//            {
-//            if (TileMap[i][j] == '0')//если элемент наш тайлик земли, то
-//            life = false;// то пуля умирает
-//            }
-//            sprite.setPosition(x + w / 2, y + h / 2);//задается позицию пули
-//            }
-//            }
-//            };
+            class Bullet :public Entity{//класс пули
+            public:
+            int direction;//направление пули
+            //всё так же, только взяли в конце состояние игрока (int dir)
+            //для задания направления полёта пули
+            Bullet(Image &image, float X, float Y, int W, int H, std::string Name, int dir)
+            :Entity(image, X, Y, W, H, Name){
+            x = X;
+            y = Y;
+            direction = dir;
+            speed = 0.8;
+            w = h = 16;
+            life = true;
+            //выше инициализация в конструкторе
+            }
+            void update(float time)
+            {
+            switch (direction)
+            {
+            case 0: dx = -speed; dy = 0; break;// state = left
+            case 1: dx = speed; dy = 0; break;// state = right
+            case 2: dx = 0; dy = -speed; break;// state = up
+            case 3: dx = 0; dy = speed; break;// state = down
+            }
+            if (life){
+            x += dx*time;//само движение пули по х
+            y += dy*time;//по у
+            if (x <= 0) x = 20;// задержка пули в левой стене, чтобы при проседании кадров она случайно не вылетела за предел карты и не было ошибки (сервер может тормозить!)
+            if (y <= 0) y = 20;
+            if (x >= 800) x = 780;// задержка пули в правой стене, чтобы при проседании
+           // кадров она случайно не вылетела за предел карты и не было ошибки (сервер может тормозить!)
+            if (y >= 800) y = 780;
+            for (int i = y / 32; i < (y + h) / 32; i++)//проходимся по элементам карты
+            for (int j = x / 32; j < (x + w) / 32; j++)
+            {
+            if (TileMap[i][j] == '0')//если элемент наш тайлик земли, то
+            life = false;// то пуля умирает
+            }
+            sprite.setPosition(x + w / 2, y + h / 2);//задается позицию пули
+            }
+            }
+            };
 
 int main()
 {
@@ -361,13 +368,13 @@ int main()
     Image easyEnemyImage;
 
     easyEnemyImage.loadFromFile("images/enemy.png"); // загружаем изображение врага
-    //Image BulletImage;//изображение для пули
-    //BulletImage.loadFromFile("images/bullet.png");//загрузили картинку в объект изображения
+    Image BulletImage;//изображение для пули
+    BulletImage.loadFromFile("images/bullet.png");//загрузили картинку в объект изображения
     Player p(heroImage, 100, 100, 96, 96, "Player1");//объект класса игрока
     std::list<Entity*> enemies; //список врагов
-    //std::list<Entity*> Bullets; //список пуль
+    std::list<Entity*> Bullets; //список пуль
     std::list<Entity*>::iterator it; //итератор чтобы проходить по элементам списка
-    const int ENEMY_COUNT = 0; //максимальное количество врагов в игре
+    const int ENEMY_COUNT = 1; //максимальное количество врагов в игре
     int enemiesCount = 0; //текущее количество врагов в игре
     //Заполняем список объектами врагами
     for (int i = 0; i < ENEMY_COUNT; i++)
@@ -381,6 +388,7 @@ int main()
     int createObjectForMapTimer = 0;//Переменная под время для генерирования камней
     while (window.isOpen())
     {
+
         float time = clock.getElapsedTime().asMicroseconds();
         if (p.life) gameTime = gameTimeClock.getElapsedTime().asSeconds();//игровое время в
         //секундах идёт вперед, пока жив игрок. Перезагружать как time его не надо.
@@ -397,14 +405,14 @@ int main()
         {
             if (event.type == sf::Event::Closed)
                 window.close();
-//            //стреляем по нажатию клавиши "P"
-//            if (event.type == sf::Event::KeyPressed)
-//            {
-//                if (event.key.code == sf::Keyboard::P)
-//                {
-//                    Bullets.push_back(new Bullet(BulletImage, p.x, p.y, 16, 16, "Bullet", p.state));
-//                }
-//            }
+            //стреляем по нажатию клавиши "P"
+            if (event.type == sf::Event::KeyPressed)
+            {
+                if (event.key.code == sf::Keyboard::P)
+                {
+                    Bullets.push_back(new Bullet(BulletImage, p.x, p.y, 16, 16, "Bullet", p.state));
+                }
+            }
         }
         p.update(time); //оживляем объект “p” класса “Player”
         //оживляем врагов
@@ -413,81 +421,118 @@ int main()
             (*it)->update(time); //запускаем метод update()
         }
         //оживляем пули
-//        for (it = Bullets.begin(); it != Bullets.end(); it++)
-//        {
-//            (*it)->update(time); //запускаем метод update()
-//        }
+        for (it = Bullets.begin(); it != Bullets.end(); it++)
+        {
+            (*it)->update(time); //запускаем метод update()
+        }
         //Проверяем список на наличие "мертвых" пуль и удаляем их
-//        for (it = Bullets.begin(); it != Bullets.end(); )//говорим что проходимся от начала до конца
-//        {// если этот объект мертв, то удаляем его
-//            if ((*it)-> life == false) { it = Bullets.erase(it); }
-//            else it++;//и идем курсором (итератором) к след объекту.
-//        }
+        for (it = Bullets.begin(); it != Bullets.end(); )//говорим что проходимся от начала до конца
+        {// если этот объект мертв, то удаляем его
+            if ((*it)-> life == false) { it = Bullets.erase(it); }
+            else it++;//и идем курсором (итератором) к след объекту.
+        }
         //Проверка пересечения игрока с врагами
-        //Если пересечение произошло, то "health = 0", игрок обездвижевается и
-        //выводится сообщение "you are lose"
+        //Если пересечение произошло, то "health = 75", игрок обездвижевается и
+
         if (p.life == true){//если игрок жив
             for (it = enemies.begin(); it != enemies.end(); it++){//бежим по списку врагов
                 if ((p.getRect().intersects((*it)->getRect())) && ((*it)->name == "EasyEnemy"))
                 {
-                    p.health = 0;
-                    std::cout << "you are lose";
+                    p.health = 75;
+
+
                 }
             }
         }
+
         window.clear();
         /////////////////////////////Рисуем карту/////////////////////
         for (int i = 0; i < HEIGHT_MAP; i++)
             for (int j = 0; j < WIDTH_MAP; j++)
             {
                 if (TileMap[i][j] == ' ') s_map.setTextureRect(IntRect(0, 0, 32, 32));
-                if (TileMap[i][j] == 's') s_map.setTextureRect(IntRect(32, 0, 32, 32));
-                if ((TileMap[i][j] == '0')) s_map.setTextureRect(IntRect(64, 0, 32, 32));
-                if ((TileMap[i][j] == 'f')) s_map.setTextureRect(IntRect(96, 0, 32, 32));//сундук
-                if ((TileMap[i][j] == 'h')) s_map.setTextureRect(IntRect(128, 0, 32, 32));//открытый сундук
+                if (TileMap[i][j] == 'S') s_map.setTextureRect(IntRect(32, 0, 32, 32));
+                if (TileMap[i][j] == 's') s_map.setTextureRect(IntRect(64, 0, 32, 32));
+                if (TileMap[i][j] == 'G') s_map.setTextureRect(IntRect(96, 0, 32, 32));
+                if (TileMap[i][j] == 'g') s_map.setTextureRect(IntRect(128, 0, 32, 32));
+                if ((TileMap[i][j] == '0')) s_map.setTextureRect(IntRect(160, 0, 32, 32));
+                if ((TileMap[i][j] == 'C')) s_map.setTextureRect(IntRect(192, 0, 32, 32));
+                if ((TileMap[i][j] == 'c')) s_map.setTextureRect(IntRect(224, 0, 32, 32));
+                if ((TileMap[i][j] == 'M')) s_map.setTextureRect(IntRect(256, 0, 32, 32));
+                if ((TileMap[i][j] == 'm')) s_map.setTextureRect(IntRect(288, 0, 32, 32));
+                if ((TileMap[i][j] == 'N')) s_map.setTextureRect(IntRect(320, 0, 32, 32));
+                if ((TileMap[i][j] == 'n')) s_map.setTextureRect(IntRect(352, 0, 32, 32));
+                if ((TileMap[i][j] == 'U')) s_map.setTextureRect(IntRect(384, 0, 32, 32));
+                if ((TileMap[i][j] == 'u')) s_map.setTextureRect(IntRect(416, 0, 32, 32));
+                if ((TileMap[i][j] == 'h')) s_map.setTextureRect(IntRect(448, 0, 32, 32));
+                if ((TileMap[i][j] == 'i')) s_map.setTextureRect(IntRect(608, 0, 32, 32));
+                if ((TileMap[i][j] == 'd')) s_map.setTextureRect(IntRect(640, 0, 32, 32));
+                if ((TileMap[i][j] == 'p')) s_map.setTextureRect(IntRect(544, 0, 32, 32));
+                if ((TileMap[i][j] == 'e')) s_map.setTextureRect(IntRect(576, 0, 32, 32));
+                if ((TileMap[i][j] == 'b')) s_map.setTextureRect(IntRect(480, 0, 32, 32));
+                if ((TileMap[i][j] == 'j')) s_map.setTextureRect(IntRect(512, 0, 32, 32));
+
                 s_map.setPosition(j * 32, i * 32);
                 window.draw(s_map);
             }
         //объявили переменную здоровья и времени
-        std::ostringstream playerHealthString, gameTimeString;
-        playerHealthString << p.health; gameTimeString << gameTime;//формируем строку
-
+        std::ostringstream playerHealthString;
+        playerHealthString << p.health; //формируем строку
+        text.setString("Health: " + playerHealthString.str());//задаем строку тексту
+        text.setPosition(50, 5);//задаем позицию текста
+        window.draw(text);//рисуем этот текст
         window.draw(p.sprite);//рисуем спрайт объекта “p” класса “Player”
+        if(gameTime < 5){
+        text.setString("What am I doing here, I need to go up to this old man to ask");//задаем строку тексту
+        text.setPosition(70, 70);//задаем позицию текста, отступая от центра камеры
+        window.draw(text);//рисую этот текст
+        }
         //рисуем врагов
         for (it = enemies.begin(); it != enemies.end(); it++)
         {
             if ((*it)->life) //если враги живы
                 window.draw((*it)->sprite); //рисуем
         }
-        //рисуем пули
-//        for (it = Bullets.begin(); it != Bullets.end(); it++)
-//        {
-//            if ((*it)->life) //если пули живы
-//                window.draw((*it)->sprite); //рисуем объекты
-//        }
+
+//        рисуем пули
+        for (it = Bullets.begin(); it != Bullets.end(); it++)
+        {
+            if ((*it)->life) //если пули живы
+                window.draw((*it)->sprite); //рисуем объекты
+        }
+
+
 if (NPCDIAL==1)
 {
 if (dialnum==0)
 {
         text.setString("Greetings,do you remember ho did you get here?");//задаем строку тексту
-        text.setPosition(50, 50);//задаем позицию текста, отступая от центра камеры
+        text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
         window.draw(text);//рисую этот текст
 }
 if ((dialnum>0)&&(dialnum<2))
 {
     text.setString("Nevermind, at the end of this dungeon, all the answers await");//задаем строку тексту
-    text.setPosition(50, 50);//задаем позицию текста, отступая от центра камеры
+    text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
     window.draw(text);//рисую этот текст
 }
-if (dialnum>2)
+if ((dialnum>2) && (dialnum <4))
 {
     text.setString("Take my belongings from that chest, it will help you in tour journey");//задаем строку тексту
-    text.setPosition(50, 50);//задаем позицию текста, отступая от центра камеры
+    text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
     window.draw(text);//рисую этот текст
 }
-if (Keyboard::isKeyPressed(Keyboard::Space))
-    dialnum=dialnum+0.01;
+if (dialnum > 4 && dialnum < 5)
+{
+    text.setString("Don't forget that you have an ability, use it by pressing the P button");//задаем строку тексту
+    text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
+    window.draw(text);//рисую этот текст
 }
+if (Keyboard::isKeyPressed(Keyboard::J)) dialnum = 0;
+if (Keyboard::isKeyPressed(Keyboard::Space))
+    dialnum+=0.01;
+}
+
         window.display();
     }
     return 0;

@@ -2,7 +2,7 @@ TEMPLATE = app
 CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
-CONFIG += c++11
+
 
 LIBS += -L"C:\SFML-2.3.2\lib"
 
