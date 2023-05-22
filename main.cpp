@@ -12,7 +12,7 @@ int NPCDIAL=0;
 class Entity {
 public:
     enum { left, right, up, down, stay, upleft, upright, downleft, downright} state;// тип перечисления - состояние объекта
-    float dx, dy, x, y, speed, moveTimer;//добавили переменную таймер для будущих целей
+    float dx, dy, x, y, speed, moveTimer,Mana;//добавили переменную таймер для будущих целей, а также переменную манки тип флоат чтобы была возможность её восстановления малыми долями
     int w, h, health; //переменная “health”, хранящая жизни игрока
     bool life; //переменная “life” жизнь, логическая
     Texture texture;//сфмл текстура
@@ -29,6 +29,7 @@ public:
         speed = 0;
         CurrentFrame = 0;
         health = 100;
+        Mana = 100;//задаем значение манки
         life = true; //инициализировали логическую переменную жизни, герой жив
         texture.loadFromImage(image); //заносим наше изображение в текстуру
         sprite.setTexture(texture); //заливаем спрайт текстурой
@@ -343,7 +344,7 @@ public:
 
 int main()
 {
-    float invinctime = 0;
+    float invinctime = 0;//объявляем переменную времени неуязвмости, можно объявить её в Entity, напомните ёё перенести
     float dialnum=0;
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
     sf::RenderWindow window(sf::VideoMode(800, 800, desktop.bitsPerPixel), "The Witcher 4");
@@ -410,9 +411,11 @@ int main()
             //стреляем по нажатию клавиши "P"
             if (event.type == sf::Event::KeyPressed)
             {
+                if ((p.Mana-10)>0)//проверка хватит ли маны на выстрел
                 if (event.key.code == sf::Keyboard::P)
                 {
                     Bullets.push_back(new Bullet(BulletImage, p.x, p.y, 16, 16, "Bullet", p.state));
+                    p.Mana-=10;//тратим ману
                 }
             }
         }
@@ -440,13 +443,13 @@ int main()
             for (it = enemies.begin(); it != enemies.end(); it++){//бежим по списку врагов
                 if ((p.getRect().intersects((*it)->getRect())) && ((*it)->name == "EasyEnemy"))
                 {
-                    p.health -=25;
-                    invinctime=2.5;
+                    p.health -=25;//вычитаем 25 хп при уроне
+                    invinctime=2.5;//даем неуязвимость на короткий промежуток времени
 
                 }
             }
         }
-        invinctime-=0.001;
+        invinctime-=0.001;//время неуязвимости постоянно убывает
         if (p.life == true){ //если игрок жив
             //бежим по списку пуль
             for (it = Bullets.begin(); it != Bullets.end(); it++){
@@ -493,7 +496,12 @@ int main()
                 s_map.setPosition(j * 32, i * 32);
                 window.draw(s_map);
             }
-        //объявили переменную здоровья и времени
+        //объявили переменную здоровья и времени        
+        std::ostringstream playerManaString;
+        playerManaString << (int)p.Mana; //формируем строку с целочисленной маной
+        text.setString("Mana: " + playerManaString.str());//задаем строку тексту
+        text.setPosition(170, 5);//задаем позицию текста
+        window.draw(text);//рисуем этот текст
         std::ostringstream playerHealthString;
         playerHealthString << p.health; //формируем строку
         text.setString("Health: " + playerHealthString.str());//задаем строку тексту
@@ -519,6 +527,8 @@ int main()
                 window.draw((*it)->sprite); //рисуем объекты
         }
 
+        if ((p.Mana<100))//восстановление маны
+            p.Mana+=0.001;
 
 if (NPCDIAL==1)
 {
