@@ -343,6 +343,7 @@ public:
 
 int main()
 {
+    float invinctime = 0;
     float dialnum=0;
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
     sf::RenderWindow window(sf::VideoMode(800, 800, desktop.bitsPerPixel), "The Witcher 4");
@@ -434,18 +435,18 @@ int main()
         }
         //Проверка пересечения игрока с врагами
         //Если пересечение произошло, то "health = 75", игрок обездвижевается и
-
-        if (p.life == true){//если игрок жив
+        if ((invinctime==0)||(invinctime<0))
+        if (p.life == true){//если игрок жив 
             for (it = enemies.begin(); it != enemies.end(); it++){//бежим по списку врагов
                 if ((p.getRect().intersects((*it)->getRect())) && ((*it)->name == "EasyEnemy"))
                 {
-                    p.health = 75;
-
+                    p.health -=25;
+                    invinctime=2.5;
 
                 }
             }
         }
-
+        invinctime-=0.001;
         if (p.life == true){ //если игрок жив
             //бежим по списку пуль
             for (it = Bullets.begin(); it != Bullets.end(); it++){
