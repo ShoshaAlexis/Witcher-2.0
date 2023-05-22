@@ -9,6 +9,7 @@
 
 using namespace sf;
 int NPCDIAL=0;
+
 class Entity {
 public:
     enum { left, right, up, down, stay, upleft, upright, downleft, downright} state;// тип перечисления - состояние объекта
@@ -20,6 +21,7 @@ public:
     float CurrentFrame;//хранит текущий кадр
     std::string name;//враги могут быть разные, врагов можно различать по именам
     //каждому можно дать свое действие в update() в зависимости от имени
+
     Entity(Image &image, float X, float Y, int W, int H, std::string Name){
         x = X; y = Y; //координата появления спрайта
         w = W; h = H;
@@ -105,12 +107,6 @@ public:
                     if (Dx > 0) { x = j * 32 - w; dx = 0; }//с правым краем карты
                     if (Dx < 0) { x = j * 32 + 32; dx = 0; }// с левым краем карты
                 }
-                if (TileMap[i][j] == 'S' || TileMap[i+1][j] == 'S'|| TileMap[i][j] == 'G' || TileMap[i+1][j] == 'G' )
-                {
-                    NPCDIAL=1;
-                }
-
-                else NPCDIAL=0;
                 if (TileMap[i][j] == 'C' ) { //закрытый сундук
 
                     TileMap[i][j] = 'N';//открытый сундук
@@ -345,10 +341,10 @@ public:
 int main()
 {
     float invinctime = 0;//объявляем переменную времени неуязвмости, можно объявить её в Entity, напомните ёё перенести
-    float dialnum=0;
+    float dialnum=-1;
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
     sf::RenderWindow window(sf::VideoMode(800, 800, desktop.bitsPerPixel), "The Witcher 4");
-
+    window.setKeyRepeatEnabled(false);
     Font font;//шрифт
     font.loadFromFile("CyrilicOld.ttf");//передаем нашему шрифту файл шрифта
     Text text("", font, 20);//создаем объект текст
@@ -530,35 +526,51 @@ int main()
         if ((p.Mana<100))//восстановление маны
             p.Mana+=0.001;
 
+        if ((abs(p.x - 600) < 80) && (abs(p.y - 100) < 80)){
+            NPCDIAL=1;
+            Event nextdial;
+            while (window.pollEvent(nextdial))
+            {
+                    if (nextdial.type == Event::KeyReleased)
+                        if (nextdial.key.code == Keyboard::Space)
+                        dialnum+=1;
+                }
+        }
+        else
+            NPCDIAL=0;
 if (NPCDIAL==1)
 {
+if (dialnum==-1)
+{
+    text.setString("Press Space to talk");
+    text.setPosition(70, 650);
+    window.draw(text);
+}
 if (dialnum==0)
 {
         text.setString("Greetings,do you remember ho did you get here?");//задаем строку тексту
         text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
         window.draw(text);//рисую этот текст
 }
-if ((dialnum>0)&&(dialnum<2))
+if (dialnum==1)
 {
     text.setString("Nevermind, at the end of this dungeon, all the answers await");//задаем строку тексту
     text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
     window.draw(text);//рисую этот текст
 }
-if ((dialnum>2) && (dialnum <4))
+if (dialnum==2)
 {
     text.setString("Take my belongings from that chest, it will help you in tour journey");//задаем строку тексту
     text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
     window.draw(text);//рисую этот текст
 }
-if (dialnum > 4 && dialnum < 5)
+if (dialnum==3)
 {
     text.setString("Don't forget that you have an ability, use it by pressing the P button");//задаем строку тексту
     text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
     window.draw(text);//рисую этот текст
 }
 if (Keyboard::isKeyPressed(Keyboard::J)) dialnum = 0;
-if (Keyboard::isKeyPressed(Keyboard::Space))
-    dialnum+=0.01;
 }
 
         window.display();
