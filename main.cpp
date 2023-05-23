@@ -32,7 +32,7 @@ public:
         speed = 0;
         CurrentFrame = 0;
         health = 100;
-        Mana = 100;//задаем значение манки
+        Mana = 10;//задаем значение манки
         StoneKD = 1;
         life = true; //инициализировали логическую переменную жизни, герой жив
         texture.loadFromImage(image); //заносим наше изображение в текстуру
@@ -453,11 +453,15 @@ int main()
     std::list<Entity*> Bullets; //список пуль
     std::list<Entity*> Effects;
     std::list<Entity*> Stones;
+    std::list<int> Inventory = {0,1,2};
     std::list<Entity*>::iterator it;
     std::list<Entity*>::iterator it1;
+    std::list<int>::iterator nextit;
     const int ENEMY_COUNT = 1; //максимальное количество врагов в игре
     int enemiesCount = 0; //текущее количество врагов в игре
+    nextit = Inventory.begin();
     //Заполняем список объектами врагами
+
     for (int i = 0; i < ENEMY_COUNT; i++)
     {
         float xr = 150 + rand() % 500; // случайная координата врага на поле игры по оси “x”
@@ -486,27 +490,30 @@ int main()
         {
             if (event.type == sf::Event::Closed)
                 window.close();
-            //стреляем по нажатию клавиши "P"
             if (event.type == sf::Event::KeyPressed)
             {
-                if ((p.Mana-10)>0)//проверка хватит ли маны на выстрел
-                    if (event.key.code == sf::Keyboard::P)
-                    {
-                        Bullets.push_back(new Bullet(BulletImage, p.x, p.y, 16, 16, "Bullet", p.state));
-                        p.Mana-=10;//тратим ману
-                    }
-
-
-            }
-
-        }
-        if (Keyboard::isKeyPressed(Keyboard::M))
-        {
-            if (p.StoneKD>0.999){
-                Stones.push_back(new Stone(StoneImage, p.x, p.y, 16, 16, "Stone", p.state));
-                p.StoneKD-=1;
+                if (Keyboard::isKeyPressed(Keyboard::I))
+                    ++nextit;
             }
         }
+        if(nextit != Inventory.begin() && nextit != Inventory.end()){
+            if ((p.Mana-9)>0)//проверка хватит ли маны на выстрел
+                if (Keyboard::isKeyPressed(Keyboard::P))
+                {
+                    Bullets.push_back(new Bullet(BulletImage, p.x, p.y, 16, 16, "Bullet", p.state));
+                    p.Mana-=10;//тратим ману
+                }
+        }
+        if(nextit == Inventory.end()){
+            if (Keyboard::isKeyPressed(Keyboard::M))
+            {
+                if (p.StoneKD>0.999){
+                    Stones.push_back(new Stone(StoneImage, p.x, p.y, 16, 16, "Stone", p.state));
+                    p.StoneKD-=1;
+                }
+            }
+        }
+
         p.update(time); //оживляем объект “p” класса “Player”
         //оживляем врагов
         for (it = enemies.begin(); it != enemies.end(); it++)
@@ -615,6 +622,25 @@ int main()
                 s_map.setPosition(j * 32, i * 32);
                 window.draw(s_map);
             }
+        if(nextit != Inventory.begin() && nextit != Inventory.end()){
+            text.setString("Weapon: FireBoll");
+            text.setPosition(5, 770);//задаем позицию текста, отступая от центра камеры
+            window.draw(text);//рисую этот текст
+        }
+        if(nextit == Inventory.begin()){
+
+            text.setString("No Weapon,Press key I for change weapon");//задаем строку тексту
+            text.setPosition(5, 770);//задаем позицию текста, отступая от центра камеры
+            window.draw(text);//рисую этот текст
+
+        }
+        if(nextit == Inventory.end()){
+
+            text.setString("Weapon: Stone");//задаем строку тексту
+            text.setPosition(5, 770);//задаем позицию текста, отступая от центра камеры
+            window.draw(text);//рисую этот текст
+
+        }
         //объявили переменную здоровья и времени
         std::ostringstream playerManaString;
         playerManaString << (int)p.Mana; //формируем строку с целочисленной маной
@@ -625,7 +651,7 @@ int main()
         std::ostringstream playerStoneString;
         playerStoneString << (int)p.StoneKD; //формируем строку с целочисленной маной
         text.setString("Stone: " + playerStoneString.str());//задаем строку тексту
-        text.setPosition(300, 5);       //задаем позицию текста
+        text.setPosition(275, 5);       //задаем позицию текста
         window.draw(text);              //рисуем этот текст
 
         std::ostringstream playerHealthString;
@@ -663,8 +689,8 @@ int main()
             if ((*it)->life) //если пули живы
                 window.draw((*it)->sprite); //рисуем объекты
         }
-        if ((p.Mana<100))//восстановление маны
-            p.Mana+=0.001;
+        if ((p.Mana<10))//восстановление маны
+            p.Mana+=0.004;
 
         if ((p.StoneKD<1))//поиск камня
             p.StoneKD+=0.001;
