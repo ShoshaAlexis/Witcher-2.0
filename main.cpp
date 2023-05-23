@@ -338,6 +338,28 @@ public:
             }
             };
 
+            class Effect :public Entity{//класс пули
+            public:
+            int lifetime;
+            Effect(Image &image, float X, float Y, int W, int H, std::string Name, int lftime)
+            :Entity(image, X, Y, W, H, Name){
+            x = X;
+            y = Y;
+            w = h = 64;
+            life = true;
+            lifetime = lftime;
+            sprite.setScale(sf::Vector2f(2,2));
+            }
+            void update(float time)
+            {
+            sprite.setPosition(x + w / 2, y + h / 2);//задается позицию пули
+            if (lifetime != 0)
+                lifetime -= 0.1;
+            else
+                life = false;
+            }
+            };
+
 int main()
 {
     float invinctime = 0;//объявляем переменную времени неуязвмости, можно объявить её в Entity, напомните ёё перенести
@@ -364,13 +386,15 @@ int main()
     Image heroImage;
     heroImage.loadFromFile("images/hero.png"); // загружаем изображение игрока
     Image easyEnemyImage;
-
     easyEnemyImage.loadFromFile("images/enemy.png"); // загружаем изображение врага
+    Image hit;
+    hit.loadFromFile("images/hit.png");
     Image BulletImage;//изображение для пули
     BulletImage.loadFromFile("images/bullet.png");//загрузили картинку в объект изображения
     Player p(heroImage, 100, 100, 96, 96, "Player1");//объект класса игрока
     std::list<Entity*> enemies; //список врагов
     std::list<Entity*> Bullets; //список пуль
+    std::list<Entity*> Effects;
     std::list<Entity*>::iterator it; //итератор чтобы проходить по элементам списка
     std::list<Entity*>::iterator it1;
     const int ENEMY_COUNT = 1; //максимальное количество врагов в игре
@@ -426,6 +450,10 @@ int main()
         {
             (*it)->update(time); //запускаем метод update()
         }
+        for (it = Effects.begin(); it != Effects.end(); it++)
+        {
+            (*it)->update(time); //запускаем метод update()
+        }
         //Проверяем список на наличие "мертвых" пуль и удаляем их
         for (it = Bullets.begin(); it != Bullets.end(); )//говорим что проходимся от начала до конца
         {// если этот объект мертв, то удаляем его
@@ -441,7 +469,7 @@ int main()
                 {
                     p.health -=25;//вычитаем 25 хп при уроне
                     invinctime=2.5;//даем неуязвимость на короткий промежуток времени
-
+                    Effects.push_back(new Effect(hit, p.x, p.y, 16, 16, "hit", 500));
                 }
             }
         }
@@ -523,6 +551,11 @@ int main()
                 window.draw((*it)->sprite); //рисуем объекты
         }
 
+        for (it = Effects.begin(); it != Effects.end(); it++)
+        {
+            if ((*it)->life) //если пули живы
+                window.draw((*it)->sprite); //рисуем объекты
+        }
         if ((p.Mana<100))//восстановление маны
             p.Mana+=0.001;
 
