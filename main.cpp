@@ -10,15 +10,16 @@
 using namespace sf;
 int NPCDIAL=0;
 
+
 class Entity {
 public:
-    enum { left, right, up, down, stay, upleft, upright, downleft, downright} state;// тип перечисления - состояние объекта
-    float dx, dy, x, y, speed, moveTimer,Mana;//добавили переменную таймер для будущих целей, а также переменную манки тип флоат чтобы была возможность её восстановления малыми долями
-    int w, h, health; //переменная “health”, хранящая жизни игрока
-    bool life; //переменная “life” жизнь, логическая
-    Texture texture;//сфмл текстура
-    Sprite sprite;//сфмл спрайт
-    float CurrentFrame;//хранит текущий кадр
+    enum { left, right, up, down, stay, upleft, upright, downleft, downright} state;
+    float dx, dy, x, y, x1, y1, speed, moveTimer,Mana, StoneKD;
+    int w, h, health;
+    bool life;
+    Texture texture;
+    Sprite sprite;
+    float CurrentFrame;
     std::string name;//враги могут быть разные, врагов можно различать по именам
     //каждому можно дать свое действие в update() в зависимости от имени
 
@@ -32,6 +33,7 @@ public:
         CurrentFrame = 0;
         health = 100;
         Mana = 100;//задаем значение манки
+        StoneKD = 1;
         life = true; //инициализировали логическую переменную жизни, герой жив
         texture.loadFromImage(image); //заносим наше изображение в текстуру
         sprite.setTexture(texture); //заливаем спрайт текстурой
@@ -60,6 +62,7 @@ public:
             sprite.setTextureRect(IntRect(0, 0, w, h));
         }
     }
+
     void control(){
         if (Keyboard::isKeyPressed(Keyboard::Left) || Keyboard::isKeyPressed(Keyboard::A)) {
             state = left;
@@ -78,22 +81,22 @@ public:
             speed = 0.1;
         }
         if ((Keyboard::isKeyPressed(Keyboard::Up) || Keyboard::isKeyPressed(Keyboard::W))&&(Keyboard::isKeyPressed(Keyboard::Left) || Keyboard::isKeyPressed(Keyboard::A))) {
-                   state = upleft;
-                   speed = 0.1;
-               }
+            state = upleft;
+            speed = 0.1;
+        }
 
-               if ((Keyboard::isKeyPressed(Keyboard::Down) || Keyboard::isKeyPressed(Keyboard::S))&&(Keyboard::isKeyPressed(Keyboard::Left) || Keyboard::isKeyPressed(Keyboard::A))) {
-                   state = downleft;
-                   speed = 0.1;
-               }
-               if ((Keyboard::isKeyPressed(Keyboard::Up) || Keyboard::isKeyPressed(Keyboard::W))&&(Keyboard::isKeyPressed(Keyboard::Right) || Keyboard::isKeyPressed(Keyboard::D))) {
-                   state = upright;
-                   speed = 0.1;
-               }
-               if ((Keyboard::isKeyPressed(Keyboard::Down) || Keyboard::isKeyPressed(Keyboard::S))&&(Keyboard::isKeyPressed(Keyboard::Right) || Keyboard::isKeyPressed(Keyboard::D))) {
-                   state = downright;
-                   speed = 0.1;
-               }
+        if ((Keyboard::isKeyPressed(Keyboard::Down) || Keyboard::isKeyPressed(Keyboard::S))&&(Keyboard::isKeyPressed(Keyboard::Left) || Keyboard::isKeyPressed(Keyboard::A))) {
+            state = downleft;
+            speed = 0.1;
+        }
+        if ((Keyboard::isKeyPressed(Keyboard::Up) || Keyboard::isKeyPressed(Keyboard::W))&&(Keyboard::isKeyPressed(Keyboard::Right) || Keyboard::isKeyPressed(Keyboard::D))) {
+            state = upright;
+            speed = 0.1;
+        }
+        if ((Keyboard::isKeyPressed(Keyboard::Down) || Keyboard::isKeyPressed(Keyboard::S))&&(Keyboard::isKeyPressed(Keyboard::Right) || Keyboard::isKeyPressed(Keyboard::D))) {
+            state = downright;
+            speed = 0.1;
+        }
     }
     //Метод проверки столкновений с элементами карты
     void checkCollisionWithMap(float Dx, float Dy) {
@@ -156,37 +159,37 @@ public:
                 break;
             }
             case upright:{//состояние идти вправо
-                            dx = speed;
-                            dy = -speed;
-                            CurrentFrame += 0.005*time;
-                            if (CurrentFrame > 3) CurrentFrame -= 3;
-                            sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 288, 96, 96));
-                            break;
-                        }
-                        case upleft:{//состояние идти влево
-                            dx = -speed;
-                            dy = -speed;
-                            CurrentFrame += 0.005*time;
-                            if (CurrentFrame > 3) CurrentFrame -= 3;
-                            sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 288, 96, 96));
-                            break;
-                        }
-                        case downright:{//идти вверх
-                            dy = speed;
-                            dx = speed;
-                            CurrentFrame += 0.005*time;
-                            if (CurrentFrame > 3) CurrentFrame -= 3;
-                            sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 0, 96, 96));
-                            break;
-                        }
-                        case downleft:{//идти вниз
-                            dy = speed;
-                            dx = -speed;
-                            CurrentFrame += 0.005*time;
-                            if (CurrentFrame > 3) CurrentFrame -= 3;
-                            sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 0, 96, 96));
-                            break;
-                        }
+                dx = speed;
+                dy = -speed;
+                CurrentFrame += 0.005*time;
+                if (CurrentFrame > 3) CurrentFrame -= 3;
+                sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 288, 96, 96));
+                break;
+            }
+            case upleft:{//состояние идти влево
+                dx = -speed;
+                dy = -speed;
+                CurrentFrame += 0.005*time;
+                if (CurrentFrame > 3) CurrentFrame -= 3;
+                sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 288, 96, 96));
+                break;
+            }
+            case downright:{//идти вверх
+                dy = speed;
+                dx = speed;
+                CurrentFrame += 0.005*time;
+                if (CurrentFrame > 3) CurrentFrame -= 3;
+                sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 0, 96, 96));
+                break;
+            }
+            case downleft:{//идти вниз
+                dy = speed;
+                dx = -speed;
+                CurrentFrame += 0.005*time;
+                if (CurrentFrame > 3) CurrentFrame -= 3;
+                sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 0, 96, 96));
+                break;
+            }
             case stay:{//стоим
                 dy = speed;
                 dx = speed;
@@ -295,70 +298,118 @@ public:
     }
 };//класс Enemy закрыт
 ////////////////////////////КЛАСС ПУЛИ////////////////////////
-            class Bullet :public Entity{//класс пули
-            public:
-            int direction;//направление пули
-            //всё так же, только взяли в конце состояние игрока (int dir)
-            //для задания направления полёта пули
-            Bullet(Image &image, float X, float Y, int W, int H, std::string Name, int dir)
-            :Entity(image, X, Y, W, H, Name){
-            x = X;
-            y = Y;
-            direction = dir;
-            speed = 0.8;
-            w = h = 16;
-            life = true;
-            //выше инициализация в конструкторе
-            }
-            void update(float time)
-            {
-            switch (direction)
-            {
-            case 0: dx = -speed; dy = 0; break;// state = left
-            case 1: dx = speed; dy = 0; break;// state = right
-            case 2: dx = 0; dy = -speed; break;// state = up
-            case 3: dx = 0; dy = speed; break;// state = down
-            }
-            if (life){
+
+class Bullet :public Entity{//класс пули
+public:
+    int direction;//направление пули
+    //всё так же, только взяли в конце состояние игрока (int dir)
+    //для задания направления полёта пули
+    Bullet(Image &image, float X, float Y, int W, int H, std::string Name, int dir)
+        :Entity(image, X, Y, W, H, Name){
+        x = X;
+        y = Y;
+        direction = dir;
+        speed = 0.8;
+        w = h = 16;
+        life = true;
+        //выше инициализация в конструкторе
+    }
+    void update(float time)
+    {
+        switch (direction)
+        {
+        case 0: dx = -speed; dy = 0; break;// state = left
+        case 1: dx = speed; dy = 0; break;// state = right
+        case 2: dx = 0; dy = -speed; break;// state = up
+        case 3: dx = 0; dy = speed; break;// state = down
+        }
+        if (life){
             x += dx*time;//само движение пули по х
             y += dy*time;//по у
             if (x <= 0) x = 20;// задержка пули в левой стене, чтобы при проседании кадров она случайно не вылетела за предел карты и не было ошибки (сервер может тормозить!)
             if (y <= 0) y = 20;
             if (x >= 800) x = 780;// задержка пули в правой стене, чтобы при проседании
-           // кадров она случайно не вылетела за предел карты и не было ошибки (сервер может тормозить!)
+            // кадров она случайно не вылетела за предел карты и не было ошибки (сервер может тормозить!)
             if (y >= 800) y = 780;
             for (int i = y / 32; i < (y + h) / 32; i++)//проходимся по элементам карты
-            for (int j = x / 32; j < (x + w) / 32; j++)
-            {
-            if (TileMap[i][j] == '0')//если элемент наш тайлик земли, то
-            life = false;// то пуля умирает
-            }
+                for (int j = x / 32; j < (x + w) / 32; j++)
+                {
+                    if (TileMap[i][j] == '0')//если элемент наш тайлик земли, то
+                        life = false;// то пуля умирает
+                }
             sprite.setPosition(x + w / 2, y + h / 2);//задается позицию пули
-            }
-            }
-            };
+        }
+    }
+};
 
-            class Effect :public Entity{//класс пули
-            public:
-            int lifetime;
-            Effect(Image &image, float X, float Y, int W, int H, std::string Name, int lftime)
-            :Entity(image, X, Y, W, H, Name){
-            x = X;
-            y = Y;
-            w = h = 64;
-            life = true;
-            lifetime = lftime;
-            sprite.setScale(sf::Vector2f(2,2));
-            }
-            void update(float time)
-            {
-            sprite.setPosition(x + w / 2, y + h / 2);//задается позицию пули
-            if (lifetime != 0)
-                lifetime -= 0.1;
-            else
-                life = false;
-            }
-            };
+
+class Stone :public Entity{//класс камня
+public:
+    int direction;
+    Stone(Image &image, float X, float Y, int W, int H, std::string Name, int dir)
+        :Entity(image, X, Y, W, H, Name){
+        x = X;
+        y = Y;
+        x1 = X;
+        y1 = Y;
+        direction = dir;
+        speed = 0.8;
+        w = h = 16;
+        life = true;
+    }
+    void update(float time)
+    {
+
+        switch (direction)
+        {
+        case 0: dx = -speed; dy = 0; break;
+        case 1: dx = speed; dy = 0; break;
+        case 2: dx = 0; dy = -speed; break;
+        case 3: dx = 0; dy = speed; break;
+        }
+
+        if (life){
+
+            x += dx*1.1;
+            y += dy*1.1;
+            if (x <= 0) x = 20;
+            if (y <= 0) y = 20;
+            if (x >= 800) x = 780;
+            if (y >= 800) y = 780;
+            for (int i = y / 32; i < (y + h) / 32; i++)
+                for (int j = x / 32; j < (x + w) / 32; j++)
+                {
+                    if ((TileMap[i][j] == '0'))
+                        life = false;
+                    if ((abs(x-x1)>100)||(abs(y-y1)>100))
+                        life = false;
+                }
+            sprite.setPosition(x + w / 2, y + h / 2);
+        }
+    }
+};
+
+class Effect :public Entity{
+public:
+    int lifetime;
+    Effect(Image &image, float X, float Y, int W, int H, std::string Name, int lftime)
+        :Entity(image, X, Y, W, H, Name){
+        x = X;
+        y = Y;
+        w = h = 64;
+        life = true;
+        lifetime = lftime;
+        sprite.setScale(sf::Vector2f(2,2));
+    }
+    void update(float time)
+    {
+        sprite.setPosition(x + w / 2, y + h / 2);
+        if (lifetime != 0)
+            lifetime -= 0.1;
+        else
+            life = false;
+    }
+};
 
 int main()
 {
@@ -391,11 +442,18 @@ int main()
     hit.loadFromFile("images/hit.png");
     Image BulletImage;//изображение для пули
     BulletImage.loadFromFile("images/bullet.png");//загрузили картинку в объект изображения
+
+    Image StoneImage;//изображение для пули
+    StoneImage.loadFromFile("images/stone.png");//загрузили картинку в объект изображения
+
+
+
     Player p(heroImage, 100, 100, 96, 96, "Player1");//объект класса игрока
     std::list<Entity*> enemies; //список врагов
     std::list<Entity*> Bullets; //список пуль
     std::list<Entity*> Effects;
-    std::list<Entity*>::iterator it; //итератор чтобы проходить по элементам списка
+    std::list<Entity*> Stones;
+    std::list<Entity*>::iterator it;
     std::list<Entity*>::iterator it1;
     const int ENEMY_COUNT = 1; //максимальное количество врагов в игре
     int enemiesCount = 0; //текущее количество врагов в игре
@@ -432,11 +490,21 @@ int main()
             if (event.type == sf::Event::KeyPressed)
             {
                 if ((p.Mana-10)>0)//проверка хватит ли маны на выстрел
-                if (event.key.code == sf::Keyboard::P)
-                {
-                    Bullets.push_back(new Bullet(BulletImage, p.x, p.y, 16, 16, "Bullet", p.state));
-                    p.Mana-=10;//тратим ману
-                }
+                    if (event.key.code == sf::Keyboard::P)
+                    {
+                        Bullets.push_back(new Bullet(BulletImage, p.x, p.y, 16, 16, "Bullet", p.state));
+                        p.Mana-=10;//тратим ману
+                    }
+
+
+            }
+
+        }
+        if (Keyboard::isKeyPressed(Keyboard::M))
+        {
+            if (p.StoneKD>0.999){
+                Stones.push_back(new Stone(StoneImage, p.x, p.y, 16, 16, "Stone", p.state));
+                p.StoneKD-=1;
             }
         }
         p.update(time); //оживляем объект “p” класса “Player”
@@ -445,14 +513,21 @@ int main()
         {
             (*it)->update(time); //запускаем метод update()
         }
+
         //оживляем пули
         for (it = Bullets.begin(); it != Bullets.end(); it++)
         {
             (*it)->update(time); //запускаем метод update()
         }
+
         for (it = Effects.begin(); it != Effects.end(); it++)
         {
             (*it)->update(time); //запускаем метод update()
+        }
+
+        for (it = Stones.begin(); it != Stones.end(); it++)
+        {
+            (*it)->update(time);
         }
         //Проверяем список на наличие "мертвых" пуль и удаляем их
         for (it = Bullets.begin(); it != Bullets.end(); )//говорим что проходимся от начала до конца
@@ -460,19 +535,25 @@ int main()
             if ((*it)-> life == false) { it = Bullets.erase(it); }
             else it++;//и идем курсором (итератором) к след объекту.
         }
+        for (it = Stones.begin(); it != Stones.end(); )
+        {
+            if ((*it)-> life == false) { it = Stones.erase(it); }
+            else it++;//и идем курсором (итератором) к след объекту.
+        }
         //Проверка пересечения игрока с врагами
         //Если пересечение произошло, то "health = 75", игрок обездвижевается и
+
         if ((invinctime==0)||(invinctime<0))
-        if (p.life == true){//если игрок жив 
-            for (it = enemies.begin(); it != enemies.end(); it++){//бежим по списку врагов
-                if ((p.getRect().intersects((*it)->getRect())) && ((*it)->name == "EasyEnemy"))
-                {
-                    p.health -=25;//вычитаем 25 хп при уроне
-                    invinctime=2.5;//даем неуязвимость на короткий промежуток времени
-                    Effects.push_back(new Effect(hit, p.x, p.y, 16, 16, "hit", 500));
+            if (p.life == true){//если игрок жив
+                for (it = enemies.begin(); it != enemies.end(); it++){//бежим по списку врагов
+                    if ((p.getRect().intersects((*it)->getRect())) && ((*it)->name == "EasyEnemy"))
+                    {
+                        p.health -=25;//вычитаем 25 хп при уроне
+                        invinctime=2.5;//даем неуязвимость на короткий промежуток времени
+                        Effects.push_back(new Effect(hit, p.x, p.y, 16, 16, "hit", 500));
+                    }
                 }
             }
-        }
         invinctime-=0.001;//время неуязвимости постоянно убывает
         if (p.life == true){ //если игрок жив
             //бежим по списку пуль
@@ -480,13 +561,27 @@ int main()
                 for (it1 = enemies.begin(); it1 != enemies.end(); it1++){
                     if ((*it)->getRect().intersects((*it1)->getRect()))
                     {
-
                         it1 = enemies.erase(it1);
                         it = enemies.erase(it);
-
                     }
                 }
             }
+
+
+        }
+
+        if (p.life == true){
+
+            for (it = Stones.begin(); it != Stones.end(); it++){
+                for (it1 = enemies.begin(); it1 != enemies.end(); it1++){
+                    if ((*it)->getRect().intersects((*it1)->getRect()))
+                    {
+                        it1 = enemies.erase(it1);
+                        it = enemies.erase(it);
+                    }
+                }
+            }
+
 
         }
 
@@ -520,12 +615,19 @@ int main()
                 s_map.setPosition(j * 32, i * 32);
                 window.draw(s_map);
             }
-        //объявили переменную здоровья и времени        
+        //объявили переменную здоровья и времени
         std::ostringstream playerManaString;
         playerManaString << (int)p.Mana; //формируем строку с целочисленной маной
         text.setString("Mana: " + playerManaString.str());//задаем строку тексту
-        text.setPosition(170, 5);//задаем позицию текста
-        window.draw(text);//рисуем этот текст
+        text.setPosition(170, 5);       //задаем позицию текста
+        window.draw(text);              //рисуем этот текст
+
+        std::ostringstream playerStoneString;
+        playerStoneString << (int)p.StoneKD; //формируем строку с целочисленной маной
+        text.setString("Stone: " + playerStoneString.str());//задаем строку тексту
+        text.setPosition(300, 5);       //задаем позицию текста
+        window.draw(text);              //рисуем этот текст
+
         std::ostringstream playerHealthString;
         playerHealthString << p.health; //формируем строку
         text.setString("Health: " + playerHealthString.str());//задаем строку тексту
@@ -533,9 +635,9 @@ int main()
         window.draw(text);//рисуем этот текст
         window.draw(p.sprite);//рисуем спрайт объекта “p” класса “Player”
         if(gameTime < 5){
-        text.setString("What am I doing here, I need to go up to this old man to ask");//задаем строку тексту
-        text.setPosition(70, 70);//задаем позицию текста, отступая от центра камеры
-        window.draw(text);//рисую этот текст
+            text.setString("What am I doing here, I need to go up to this old man to ask");//задаем строку тексту
+            text.setPosition(70, 70);//задаем позицию текста, отступая от центра камеры
+            window.draw(text);//рисую этот текст
         }
         //рисуем врагов
         for (it = enemies.begin(); it != enemies.end(); it++)
@@ -544,7 +646,7 @@ int main()
                 window.draw((*it)->sprite); //рисуем
         }
 
-//        рисуем пули
+        //        рисуем пули
         for (it = Bullets.begin(); it != Bullets.end(); it++)
         {
             if ((*it)->life) //если пули живы
@@ -556,55 +658,63 @@ int main()
             if ((*it)->life) //если пули живы
                 window.draw((*it)->sprite); //рисуем объекты
         }
+        for (it = Stones.begin(); it != Stones.end(); it++)
+        {
+            if ((*it)->life) //если пули живы
+                window.draw((*it)->sprite); //рисуем объекты
+        }
         if ((p.Mana<100))//восстановление маны
             p.Mana+=0.001;
+
+        if ((p.StoneKD<1))//поиск камня
+            p.StoneKD+=0.001;
 
         if ((abs(p.x - 600) < 80) && (abs(p.y - 100) < 80)){
             NPCDIAL=1;
             Event nextdial;
             while (window.pollEvent(nextdial))
             {
-                    if (nextdial.type == Event::KeyReleased)
-                        if (nextdial.key.code == Keyboard::Space)
+                if (nextdial.type == Event::KeyReleased)
+                    if (nextdial.key.code == Keyboard::Space)
                         dialnum+=1;
-                }
+            }
         }
         else
             NPCDIAL=0;
-if (NPCDIAL==1)
-{
-if (dialnum==-1)
-{
-    text.setString("Press Space to talk");
-    text.setPosition(70, 650);
-    window.draw(text);
-}
-if (dialnum==0)
-{
-        text.setString("Greetings,do you remember ho did you get here?");//задаем строку тексту
-        text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
-        window.draw(text);//рисую этот текст
-}
-if (dialnum==1)
-{
-    text.setString("Nevermind, at the end of this dungeon, all the answers await");//задаем строку тексту
-    text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
-    window.draw(text);//рисую этот текст
-}
-if (dialnum==2)
-{
-    text.setString("Take my belongings from that chest, it will help you in tour journey");//задаем строку тексту
-    text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
-    window.draw(text);//рисую этот текст
-}
-if (dialnum==3)
-{
-    text.setString("Don't forget that you have an ability, use it by pressing the P button");//задаем строку тексту
-    text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
-    window.draw(text);//рисую этот текст
-}
-if (Keyboard::isKeyPressed(Keyboard::J)) dialnum = 0;
-}
+        if (NPCDIAL==1)
+        {
+            if (dialnum==-1)
+            {
+                text.setString("Press Space to talk");
+                text.setPosition(70, 650);
+                window.draw(text);
+            }
+            if (dialnum==0)
+            {
+                text.setString("Greetings,do you remember ho did you get here?");//задаем строку тексту
+                text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
+                window.draw(text);//рисую этот текст
+            }
+            if (dialnum==1)
+            {
+                text.setString("Nevermind, at the end of this dungeon, all the answers await");//задаем строку тексту
+                text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
+                window.draw(text);//рисую этот текст
+            }
+            if (dialnum==2)
+            {
+                text.setString("Take my belongings from that chest, it will help you in tour journey");//задаем строку тексту
+                text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
+                window.draw(text);//рисую этот текст
+            }
+            if (dialnum==3)
+            {
+                text.setString("Don't forget that you have an ability, use it by pressing the P button");//задаем строку тексту
+                text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
+                window.draw(text);//рисую этот текст
+            }
+            if (Keyboard::isKeyPressed(Keyboard::J)) dialnum = 0;
+        }
 
         window.display();
     }
