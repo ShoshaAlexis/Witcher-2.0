@@ -10,7 +10,6 @@
 using namespace sf;
 int NPCDIAL=0;
 
-
 class Entity {
 public:
     enum { left, right, up, down, stay, upleft, upright, downleft, downright} state;
