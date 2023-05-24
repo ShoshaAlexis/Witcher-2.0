@@ -6,7 +6,6 @@
 #include <list>
 #include <windows.h>
 
-
 using namespace sf;
 int NPCDIAL=0;
 
@@ -410,11 +409,48 @@ public:
     }
 };
 
+void menu(sf::RenderWindow &window) {
+    Texture menuTexture1, menuBackground;
+    menuTexture1.loadFromFile("images/111.png");
+    menuBackground.loadFromFile("images/witcher.png");
+    Sprite menu1(menuTexture1), menuBg(menuBackground);
+    menuBg.setScale(sf::Vector2f(2,2));
+    bool isMenu = 1;
+    int menuNum = 0;
+    menu1.setPosition(320, 430);
+    menuBg.setPosition(0, 0);
+
+    //////////////////////////////МЕНЮ///////////////////
+    while (isMenu)
+    {
+        menu1.setColor(Color::White);
+        menuNum = 0;
+        window.clear(Color(129, 181, 221));
+
+        if (IntRect(320, 430, 300, 50).contains(Mouse::getPosition(window))) { menu1.setColor(Color::Blue); menuNum = 1; }
+
+        if (Mouse::isButtonPressed(Mouse::Left))
+        {
+            if (menuNum == 1) {isMenu = false; isMenu = false; window.close();}
+
+        }
+
+        window.draw(menuBg);
+        window.draw(menu1);
+
+        window.display();
+
+    }
+}
+
+
 int main()
 {
     float invinctime = 0;//объявляем переменную времени неуязвмости, можно объявить её в Entity, напомните ёё перенести
     float dialnum=-1;
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+    sf::RenderWindow windowm(sf::VideoMode(800, 800), "Main Menu");
+    menu(windowm);
     sf::RenderWindow window(sf::VideoMode(800, 800, desktop.bitsPerPixel), "The Witcher 4");
     window.setKeyRepeatEnabled(false);
     Font font;//шрифт
@@ -444,9 +480,6 @@ int main()
 
     Image StoneImage;//изображение для пули
     StoneImage.loadFromFile("images/stone.png");//загрузили картинку в объект изображения
-
-
-
     Player p(heroImage, 100, 100, 96, 96, "Player1");//объект класса игрока
     std::list<Entity*> enemies; //список врагов
     std::list<Entity*> Bullets; //список пуль
