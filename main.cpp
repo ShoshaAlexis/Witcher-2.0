@@ -7,7 +7,7 @@
 #include <windows.h>
 
 using namespace sf;
-int NPCDIAL=0;
+int NPCDIAL=0,quest1=1;
 
 class Entity {
 public:
@@ -119,6 +119,7 @@ public:
                 if (TileMap[i][j] == 'h') {
                     TileMap[i][j] = ' ';
                     health += 25;
+                    quest1=3;
                 }
             }
     }
@@ -761,19 +762,60 @@ int main()
             }
             if (dialnum==2)
             {
-                text.setString("Take my belongings from that chest, it will help you in tour journey");//задаем строку тексту
+                text.setString("But right now, could you take the heart stone from that chest of mine?");
                 text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
                 window.draw(text);//рисую этот текст
+                text.setString("This creature is blocking my way, you can take everything else");
+                text.setPosition(70, 700);//задаем позицию текста, отступая от центра камеры
+                window.draw(text);//рисую этот текст
+                quest1=2;
             }
             if (dialnum==3)
             {
                 text.setString("Don't forget that you have an ability, use it by pressing the P button");//задаем строку тексту
                 text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
                 window.draw(text);//рисую этот текст
-            }
-            if (Keyboard::isKeyPressed(Keyboard::J)) dialnum = 0;
-        }
 
+            }
+            if ((dialnum==4)&&(quest1==3))
+            {
+
+               text.setString("Thank you, I think u will need it more that i will, good luck");
+               text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
+               window.draw(text);//рисую этот текст
+            }
+            if (dialnum==5)
+                quest1=4;
+            if (Keyboard::isKeyPressed(Keyboard::J)) dialnum = 0;
+
+        }
+        if ((quest1==1)&&(gameTime > 5))
+        {
+            text.setString("A New Begining");//задаем строку тексту
+            text.setPosition(70,40);//задаем позицию текста, отступая от центра камеры
+            window.draw(text);//рисую этот текст
+            text.setString("Go Talk with a strange old man");//задаем строку тексту
+            text.setPosition(70,70);//задаем позицию текста, отступая от центра камеры
+            window.draw(text);//рисую этот текст
+        }
+        if (quest1==2)
+        {
+            text.setString("A New Begining");//задаем строку тексту
+            text.setPosition(70,40);//задаем позицию текста, отступая от центра камеры
+            window.draw(text);//рисую этот текст
+            text.setString("Take old mans book from the chest");//задаем строку тексту
+            text.setPosition(70,70);//задаем позицию текста, отступая от центра камеры
+            window.draw(text);//рисую этот текст
+        }
+        if ((quest1==3)&&(quest1!=4))
+        {
+            text.setString("A New Begining");//задаем строку тексту
+            text.setPosition(70,40);//задаем позицию текста, отступая от центра камеры
+            window.draw(text);//рисую этот текст
+            text.setString("Give the book back");//задаем строку тексту
+            text.setPosition(70,70);//задаем позицию текста, отступая от центра камеры
+            window.draw(text);//рисую этот текст
+        }
         window.display();
     }
     return 0;
