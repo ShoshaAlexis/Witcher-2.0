@@ -2,12 +2,13 @@
 #include <sstream>
 #include <SFML/Graphics.hpp>
 #include "map.h"
+#include "map1.h"
 #include <cmath>
 #include <list>
 #include <windows.h>
 
 using namespace sf;
-int NPCDIAL=0,quest1=1;
+int NPCDIAL=0,quest1=1,Lvl = 1;
 
 class Entity {
 public:
@@ -120,6 +121,12 @@ public:
                     TileMap[i][j] = ' ';
                     health += 25;
                     quest1=3;
+
+                }
+                if(TileMap[i][j] == 'l' && quest1 >= 3){
+                    TileMap[i][j-1] = 'V';
+                    TileMap[i][j] = 'v';
+                    Lvl++;
                 }
             }
     }
@@ -321,6 +328,11 @@ public:
         case 1: dx = speed; dy = 0; break;// state = right
         case 2: dx = 0; dy = -speed; break;// state = up
         case 3: dx = 0; dy = speed; break;// state = down
+        case 4: dx = speed; dy = -speed; break;// state = left
+        case 5: dx = -speed/2; dy = -speed/2; break;// state = upright
+        case 6: dx = speed/2; dy = -speed/2; break;// state = upleft
+        case 7: dx = -speed/2; dy = speed/2; break;// state = downleft
+        case 8: dx = speed/2; dy = speed/2; break;// state = downright
         }
         if (life){
             x += dx*time;//само движение пули по х
@@ -361,10 +373,15 @@ public:
 
         switch (direction)
         {
-        case 0: dx = -speed; dy = 0; break;
-        case 1: dx = speed; dy = 0; break;
-        case 2: dx = 0; dy = -speed; break;
-        case 3: dx = 0; dy = speed; break;
+        case 0: dx = -speed; dy = 0; break;// state = left
+        case 1: dx = speed; dy = 0; break;// state = right
+        case 2: dx = 0; dy = -speed; break;// state = up
+        case 3: dx = 0; dy = speed; break;// state = down
+        case 4: dx = speed; dy = -speed; break;// state = left
+        case 5: dx = -speed/2; dy = -speed/2; break;// state = upright
+        case 6: dx = speed/2; dy = -speed/2; break;// state = upleft
+        case 7: dx = -speed/2; dy = speed/2; break;// state = downleft
+        case 8: dx = speed/2; dy = speed/2; break;// state = downright
         }
 
         if (life){
@@ -490,7 +507,7 @@ int main()
     std::list<Entity*>::iterator it;
     std::list<Entity*>::iterator it1;
     std::list<int>::iterator nextit;
-    const int ENEMY_COUNT = 1; //максимальное количество врагов в игре
+    const int ENEMY_COUNT = 3; //максимальное количество врагов в игре
     int enemiesCount = 0; //текущее количество врагов в игре
     nextit = Inventory.begin();
     //Заполняем список объектами врагами
@@ -627,6 +644,7 @@ int main()
 
         window.clear();
         /////////////////////////////Рисуем карту/////////////////////
+        if(Lvl == 1){
         for (int i = 0; i < HEIGHT_MAP; i++)
             for (int j = 0; j < WIDTH_MAP; j++)
             {
@@ -651,10 +669,51 @@ int main()
                 if ((TileMap[i][j] == 'e')) s_map.setTextureRect(IntRect(576, 0, 32, 32));
                 if ((TileMap[i][j] == 'b')) s_map.setTextureRect(IntRect(480, 0, 32, 32));
                 if ((TileMap[i][j] == 'j')) s_map.setTextureRect(IntRect(512, 0, 32, 32));
+                if ((TileMap[i][j] == 'L')) s_map.setTextureRect(IntRect(672, 0, 32, 32));
+                if ((TileMap[i][j] == 'l')) s_map.setTextureRect(IntRect(704, 0, 32, 32));
+                if ((TileMap[i][j] == 'V')) s_map.setTextureRect(IntRect(736, 0, 32, 32));
+                if ((TileMap[i][j] == 'v')) s_map.setTextureRect(IntRect(768, 0, 32, 32));
 
                 s_map.setPosition(j * 32, i * 32);
                 window.draw(s_map);
             }
+        }
+        if (Lvl == 2){
+            for (int i = 0; i < HeightMap; i++)
+                for (int j = 0; j < WidthwMap; j++)
+                {
+
+                    if (Map[i][j] == ' ') s_map.setTextureRect(IntRect(0, 0, 32, 32));
+                    if (Map[i][j] == 'S') s_map.setTextureRect(IntRect(32, 0, 32, 32));
+                    if (Map[i][j] == 's') s_map.setTextureRect(IntRect(64, 0, 32, 32));
+                    if (Map[i][j] == 'G') s_map.setTextureRect(IntRect(96, 0, 32, 32));
+                    if (Map[i][j] == 'g') s_map.setTextureRect(IntRect(128, 0, 32, 32));
+                    if ((Map[i][j] == '0')) s_map.setTextureRect(IntRect(160, 0, 32, 32));
+                    if ((Map[i][j] == 'C')) s_map.setTextureRect(IntRect(192, 0, 32, 32));
+                    if ((Map[i][j] == 'c')) s_map.setTextureRect(IntRect(224, 0, 32, 32));
+                    if ((Map[i][j] == 'M')) s_map.setTextureRect(IntRect(256, 0, 32, 32));
+                    if ((Map[i][j] == 'm')) s_map.setTextureRect(IntRect(288, 0, 32, 32));
+                    if ((Map[i][j] == 'N')) s_map.setTextureRect(IntRect(320, 0, 32, 32));
+                    if ((Map[i][j] == 'n')) s_map.setTextureRect(IntRect(352, 0, 32, 32));
+                    if ((Map[i][j] == 'U')) s_map.setTextureRect(IntRect(384, 0, 32, 32));
+                    if ((Map[i][j] == 'u')) s_map.setTextureRect(IntRect(416, 0, 32, 32));
+                    if ((Map[i][j] == 'h')) s_map.setTextureRect(IntRect(448, 0, 32, 32));
+//                    if ((TileMap[i][j] == 'i')) s_map.setTextureRect(IntRect(608, 0, 32, 32));
+//                    if ((TileMap[i][j] == 'd')) s_map.setTextureRect(IntRect(640, 0, 32, 32));
+//                    if ((TileMap[i][j] == 'p')) s_map.setTextureRect(IntRect(544, 0, 32, 32));
+//                    if ((TileMap[i][j] == 'e')) s_map.setTextureRect(IntRect(576, 0, 32, 32));
+//                    if ((TileMap[i][j] == 'b')) s_map.setTextureRect(IntRect(480, 0, 32, 32));
+//                    if ((TileMap[i][j] == 'j')) s_map.setTextureRect(IntRect(512, 0, 32, 32));
+                    if ((Map[i][j] == 'L')) s_map.setTextureRect(IntRect(672, 0, 32, 32));
+                    if ((Map[i][j] == 'l')) s_map.setTextureRect(IntRect(704, 0, 32, 32));
+                    if ((Map[i][j] == 'V')) s_map.setTextureRect(IntRect(736, 0, 32, 32));
+                    if ((Map[i][j] == 'v')) s_map.setTextureRect(IntRect(768, 0, 32, 32));
+
+                    s_map.setPosition(j * 32, i * 32);
+                    window.draw(s_map);
+                }
+            }
+
         if(nextit != Inventory.begin() && nextit != Inventory.end()){
             text.setString("Weapon: FireBoll");
             text.setPosition(5, 770);//задаем позицию текста, отступая от центра камеры
@@ -783,6 +842,7 @@ int main()
                text.setString("Thank you, I think u will need it more that i will, good luck");
                text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
                window.draw(text);//рисую этот текст
+
             }
             if (dialnum==5)
                 quest1=4;

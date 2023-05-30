@@ -21,4 +21,5 @@ include(deployment.pri)
 qtcAddDeployment()
 
 HEADERS += \
-    map.h
+    map.h \
+    map1.h
