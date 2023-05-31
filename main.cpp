@@ -459,9 +459,9 @@ public:
             for (int i = y / 32; i < (y + h) / 32; i++)//проходимся по элементам карты
                 for (int j = x / 32; j < (x + w) / 32; j++)
                 {
-                    if (TileMap[i][j] == '0')//если элемент наш тайлик земли, то
+                    if (TileMap[i][j] == '0' || TileMap[i][j] == 'L' || TileMap[i][j] == 'l')//если элемент наш тайлик земли, то
                         life = false;// то пуля умирает
-                    if (Map[i][j] == '0')//если элемент наш тайлик земли, то
+                    if (Map[i][j] == '0' || Map[i][j] == 'L' || Map[i][j] == 'l')//если элемент наш тайлик двери, то
                         life = false;// то пуля умирает
                 }
             sprite.setPosition(x + w / 2, y + h / 2);//задается позицию пули
@@ -583,7 +583,11 @@ void menu(sf::RenderWindow &window) {
 int main()
 {
     float invinctime = 0;//объявляем переменную времени неуязвмости, можно объявить её в Entity, напомните ёё перенести
-    float dialnum=-1;
+    float dialnum=0; // номер диалога
+    float dialtime=0; //время для учета кулдауна на прочтение диалога
+    bool isdial = 0;
+    bool timebool = 1; //переменная, чтобы dialtimeest отнимался по 1 а не по 100
+    int dialtimeest = 5; //время для вывода на чтение диалога
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
     sf::RenderWindow windowm(sf::VideoMode(800, 800), "Main Menu");
     menu(windowm);
@@ -1022,50 +1026,116 @@ int main()
             p.StoneKD+=0.001;
 
         if ((abs(p.x - 600) < 80) && (abs(p.y - 100) < 80)){
+            if (isdial){
             NPCDIAL=1;
+            if(dialtime < 55) //чтобы dialtime не прибавлялся бесконечно + isdial проверяет начат ли диалог
+            dialtime +=0.01;  //работаем с DialTime
+            if (dialtime > 9 && dialtime < 11 && timebool) //так много if потому что dialtime - float и делает за одно число много действий
+            {
+                    dialtimeest -=1;
+                    timebool=0;
+            }
+            if (dialtime > 11 && dialtime < 13)
+            {
+                    timebool=1;
+            }
+            if (dialtime > 19 && dialtime < 21 && timebool)
+            {
+                    dialtimeest -=1;
+                    timebool=0;
+            }
+            if (dialtime > 21 && dialtime < 23)
+            {
+                    timebool=1;
+            }
+            if (dialtime > 29 && dialtime < 31 && timebool)
+            {
+                    dialtimeest -=1;
+                    timebool=0;
+            }
+            if (dialtime > 31 && dialtime < 33)
+            {
+                    timebool=1;
+            }
+            if (dialtime > 39 && dialtime < 41 && timebool)
+            {
+                    dialtimeest -=1;
+                    timebool=0;
+            }
+            if (dialtime > 41 && dialtime < 43)
+            {
+                    timebool=1;
+            }
+            if (dialtime > 49 && dialtime < 51 && timebool)
+            {
+                    dialtimeest -=1;
+                    timebool=0;
+            }
+            if (dialtime > 51 && dialtime < 53)
+            {
+                    timebool=1;
+            }
             Event nextdial;
             while (window.pollEvent(nextdial))
             {
-                if (nextdial.type == Event::KeyReleased)
-                    if (nextdial.key.code == Keyboard::Space)
+                if (nextdial.type == Event::KeyReleased && dialtime>50){
+                    if (nextdial.key.code == Keyboard::Space){
                         dialnum+=1;
+                        dialtime = 0;
+                        dialtimeest = 5;
+                    }
+                }
+            }
+        }
+            else //event для старта диалога
+            {
+                Event startdial;
+                while (window.pollEvent(startdial))
+                {
+                    if (startdial.type == Event::KeyReleased){
+                        if (startdial.key.code == Keyboard::Space){
+                            isdial = 1;
+                        }
+                    }
+                }
+                text.setString("Press Space to talk");//задаем строку тексту
+                text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
+                window.draw(text);//рисую этот текст
             }
         }
         else
             NPCDIAL=0;
         if (NPCDIAL==1)
         {
-            if (dialnum==-1)
-            {
-                text.setString("Press Space to talk");
-                text.setPosition(70, 650);
-                window.draw(text);
-            }
+            std::ostringstream dialtimeestStr;
+            dialtimeestStr << dialtimeest; //формируем строку
+
+
             if (dialnum==0)
             {
-                text.setString("Greetings,do you remember ho did you get here?");//задаем строку тексту
+                text.setString("Greetings,do you remember ho did you get here? "+ dialtimeestStr.str());//задаем строку тексту
                 text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
                 window.draw(text);//рисую этот текст
             }
             if (dialnum==1)
             {
-                text.setString("Nevermind, at the end of this dungeon, all the answers await");//задаем строку тексту
+                text.setString("Nevermind, at the end of this dungeon, all the answers await "+ dialtimeestStr.str());//задаем строку тексту
                 text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
                 window.draw(text);//рисую этот текст
             }
             if (dialnum==2)
             {
-                text.setString("But right now, could you take the heart stone from that chest of mine?");
+                text.setString("But right now, could you take the heart stone from that chest of mine? ");
                 text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
                 window.draw(text);//рисую этот текст
-                text.setString("This creature is blocking a way out, you can take everything else");
+                text.setString("This creature is blocking a way out, you can take everything else"+ dialtimeestStr.str());
                 text.setPosition(70, 700);//задаем позицию текста, отступая от центра камеры
                 window.draw(text);//рисую этот текст
                 quest1=2;
             }
             if (dialnum==3)
             {
-                text.setString("Don't forget that you have an ability, use it by pressing the P button");//задаем строку тексту
+                text.setString("Don't forget that you have an ability, use it by pressing the P button "+ dialtimeestStr.str());//задаем строку тексту
                 text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
                 window.draw(text);//рисую этот текст
 
@@ -1073,7 +1143,7 @@ int main()
             if ((dialnum==4)&&(quest1==3))
             {
 
-                text.setString("Thank you, I think u will need it more that i will, good luck");
+                text.setString("Thank you, I think u will need it more that i will, good luck "+ dialtimeestStr.str());
                 text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
                 window.draw(text);//рисую этот текст
 
