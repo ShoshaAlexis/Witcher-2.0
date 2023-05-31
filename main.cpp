@@ -98,6 +98,26 @@ public:
         }
     }
     //Метод проверки столкновений с элементами карты
+    void checkCollisionWithMap2(float Dx, float Dy) {
+        for (int i = y / 32; i < (y + h) / 32; i++)//проходимся по элементам карты
+            for (int j = x / 32; j<(x + w) / 32; j++)
+            {
+                if (Map[i][j] == '0')//если элемент тайлик земли
+                {
+                    if (Dy > 0) { y = i * 32 - h; dy = 0; }//по Y
+                    if (Dy < 0) { y = i * 32 + 32; dy = 0; }//столкновение с верхними краями
+                    if (Dx > 0) { x = j * 32 - w; dx = 0; }//с правым краем карты
+                    if (Dx < 0) { x = j * 32 + 32; dx = 0; }// с левым краем карты
+                }
+                if (Map[i][j] == 'h') {
+                    Map[i][j] = ' ';
+                    health += 25;
+
+
+                }
+            }
+    }
+
     void checkCollisionWithMap(float Dx, float Dy) {
         for (int i = y / 32; i < (y + h) / 32; i++)//проходимся по элементам карты
             for (int j = x / 32; j<(x + w) / 32; j++)
@@ -203,9 +223,15 @@ public:
             }
             }
             x += dx*time; //движение по “X”
-            checkCollisionWithMap(dx, 0);//обрабатываем столкновение по Х
+            if (Lvl == 1)
+            checkCollisionWithMap(dx, 0);
+            if (Lvl == 2)
+            checkCollisionWithMap2(dx, 0);//обрабатываем столкновение по Х
             y += dy*time; //движение по “Y”
-            checkCollisionWithMap(0, dy);//обрабатываем столкновение по Y
+            if (Lvl == 1)
+            checkCollisionWithMap(0, dy);
+            if (Lvl == 2)
+            checkCollisionWithMap2(0, dy);//обрабатываем столкновение по Y
             speed = 0; //обнуляем скорость, чтобы персонаж остановился.
             //state = stay;
             dx = 0;
@@ -305,6 +331,94 @@ public:
 };//класс Enemy закрыт
 ////////////////////////////КЛАСС ПУЛИ////////////////////////
 
+class Boss :public Entity{
+public:
+    int direction;//направление движения врага
+    Boss(Image &image, float X, float Y, int W, int H, std::string Name) :Entity(image, X,
+                                                                                 Y, W, H, Name){
+        if (name == "hardBoss"){
+            //Задаем спрайту один прямоугольник для
+            //вывода одного игрока. IntRect – для приведения типов
+            sprite.setTextureRect(IntRect(0, 0, w, h));
+            direction = rand() % (3); //Направление движения врага задаём случайным образом
+            //через генератор случайных чисел
+            speed = 0.15;//даем скорость.этот объект всегда двигается
+            dx = speed;
+        }
+    }
+    void checkCollisionWithMap(float Dx, float Dy)//ф-ция проверки столкновений с картой
+    {
+        for (int i = y / 32; i < (y + h) / 32; i++)//проходимся по элементам карты
+            for (int j = x / 32; j<(x + w) / 32; j++)
+            {
+                if (Map[i][j] == '0')//если элемент - тайлик земли
+                {
+                    if (Dy > 0) {
+                        y = i * 32 - h; dy = -0.1;
+                        direction = rand() % (3); //Направление движения врага
+                    }//по Y
+                    if (Dy < 0) {
+                        y = i * 32 + 32; dy = 0.1;
+                        direction = rand() % (3);//Направление движения врага
+                    }//столкновение с верхними краями
+                    if (Dx > 0) {
+                        x = j * 32 - w; dx = -0.1;
+                        direction = rand() % (3);//Направление движения врага
+                    }//с правым краем карты
+                    if (Dx < 0) {
+                        x = j * 32 + 32; dx = 0.1;
+                        direction = rand() % (3); //Направление движения врага
+                    }// с левым краем карты
+                }
+            }
+    }
+    void update(float time)
+    {
+        if (name == "hardBoss"){//для персонажа с таким именем логика будет такой
+            if (life) {//проверяем, жив ли герой
+                switch (direction)//делаются различные действия в зависимости от состояния
+                {
+                case 0:{//состояние идти вправо
+                    dx = speed;
+                    CurrentFrame += 0.005*time;
+                    if (CurrentFrame > 3) CurrentFrame -= 3;
+                    sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 192, 96, 96));
+                    break;
+                }
+                case 1:{//состояние идти влево
+                    dx = -speed;
+                    CurrentFrame += 0.005*time;
+                    if (CurrentFrame > 3) CurrentFrame -= 3;
+                    sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 96, 96, 96));
+                    break;
+                }
+                case 2:{//идти вверх
+                    dy = -speed;
+                    CurrentFrame += 0.005*time;
+                    if (CurrentFrame > 3) CurrentFrame -= 3;
+                    sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 288, 96, 96));
+                    break;
+                }
+                case 3:{//идти вниз
+                    dy = speed;
+                    CurrentFrame += 0.005*time;
+                    if (CurrentFrame > 3) CurrentFrame -= 3;
+                    sprite.setTextureRect(IntRect(96 * int(CurrentFrame), 0, 96, 96));
+                    break;
+                }
+                }
+                x += dx*time; //движение по “X”
+
+                checkCollisionWithMap(dx, 0);//обрабатываем столкновение по Хy += dy*time;
+                y += dy*time;//движение по “Y”
+                checkCollisionWithMap(0, dy);//обрабатываем столкновение по Y
+                sprite.setPosition(x, y); //спрайт в позиции (x, y).
+                if (health <= 0){ life = false; }//если жизней меньше 0, либо равно 0, то умираем
+            }
+        }
+    }
+};//класс Boss закрыт
+
 class Bullet :public Entity{//класс пули
 public:
     int direction;//направление пули
@@ -346,6 +460,8 @@ public:
                 for (int j = x / 32; j < (x + w) / 32; j++)
                 {
                     if (TileMap[i][j] == '0')//если элемент наш тайлик земли, то
+                        life = false;// то пуля умирает
+                    if (Map[i][j] == '0')//если элемент наш тайлик земли, то
                         life = false;// то пуля умирает
                 }
             sprite.setPosition(x + w / 2, y + h / 2);//задается позицию пули
@@ -396,6 +512,8 @@ public:
                 for (int j = x / 32; j < (x + w) / 32; j++)
                 {
                     if ((TileMap[i][j] == '0'))
+                        life = false;
+                    if ((Map[i][j] == '0'))
                         life = false;
                     if ((abs(x-x1)>100)||(abs(y-y1)>100))
                         life = false;
@@ -491,6 +609,8 @@ int main()
     heroImage.loadFromFile("images/hero.png"); // загружаем изображение игрока
     Image easyEnemyImage;
     easyEnemyImage.loadFromFile("images/enemy.png"); // загружаем изображение врага
+    Image hardBossImage;
+    hardBossImage.loadFromFile("images/boss.png"); // загружаем изображение врага
     Image hit;
     hit.loadFromFile("images/hit.png");
     Image BulletImage;//изображение для пули
@@ -503,12 +623,17 @@ int main()
     std::list<Entity*> Bullets; //список пуль
     std::list<Entity*> Effects;
     std::list<Entity*> Stones;
+    std::list<Entity*> bosses;
     std::list<int> Inventory = {0,1,2};
     std::list<Entity*>::iterator it;
     std::list<Entity*>::iterator it1;
+    std::list<Entity*>::iterator it2;
     std::list<int>::iterator nextit;
-    const int ENEMY_COUNT = 3; //максимальное количество врагов в игре
+    const int ENEMY_COUNT = 0; //максимальное количество врагов в игре
+    const int BOSS_COUNT = 1;
     int enemiesCount = 0; //текущее количество врагов в игре
+    int bossesCount = 1;
+    float bossHP = 100;
     nextit = Inventory.begin();
     //Заполняем список объектами врагами
 
@@ -519,6 +644,14 @@ int main()
         //создаем врагов и помещаем в список
         enemies.push_back(new Enemy(easyEnemyImage, xr, yr, 96, 96, "EasyEnemy"));
         enemiesCount += 1; //увеличили счётчик врагов
+    }
+    for (int i = 0; i < BOSS_COUNT; i++)
+    {
+        float xr = 300 + rand() % 500; // случайная координата врага на поле игры по оси “x”
+        float yr = 300 + rand() % 350; // случайная координата врага на поле игры по оси “y”
+        //создаем врагов и помещаем в список
+        bosses.push_back(new Boss(hardBossImage, xr, yr, 96, 96, "hardBoss"));
+        bossesCount += 1; //увеличили счётчик врагов
     }
     int createObjectForMapTimer = 0;//Переменная под время для генерирования камней
     while (window.isOpen())
@@ -566,9 +699,18 @@ int main()
 
         p.update(time); //оживляем объект “p” класса “Player”
         //оживляем врагов
-        for (it = enemies.begin(); it != enemies.end(); it++)
-        {
-            (*it)->update(time); //запускаем метод update()
+        if (Lvl == 1){
+            for (it = enemies.begin(); it != enemies.end(); it++)
+            {
+                (*it)->update(time); //запускаем метод update()
+            }
+        }
+        //оживляем босс
+        if (Lvl == 2){
+            for (it = bosses.begin(); it != bosses.end(); it++)
+            {
+                (*it)->update(time); //запускаем метод update()
+            }
         }
 
         //оживляем пули
@@ -611,6 +753,19 @@ int main()
                     }
                 }
             }
+
+        //проверка пересечения с боссом
+        if ((invinctime==0)||(invinctime<0))
+            if (p.life == true){//если игрок жив
+                for (it2 = bosses.begin(); it2 != bosses.end(); it2++){//бежим по списку врагов
+                    if ((p.getRect().intersects((*it2)->getRect())) && ((*it2)->name == "hardBoss"))
+                    {
+                        p.health -=50;
+                        invinctime=2.5;
+                        Effects.push_back(new Effect(hit, p.x, p.y, 16, 16, "hit", 500));
+                    }
+                }
+            }
         invinctime-=0.001;//время неуязвимости постоянно убывает
         if (p.life == true){ //если игрок жив
             //бежим по списку пуль
@@ -627,6 +782,8 @@ int main()
 
         }
 
+
+
         if (p.life == true){
 
             for (it = Stones.begin(); it != Stones.end(); it++){
@@ -638,6 +795,39 @@ int main()
                     }
                 }
             }
+        }
+
+        if (p.life == true){ //если игрок жив
+            //бежим по списку пуль
+            for (it = Bullets.begin(); it != Bullets.end(); it++){
+                for (it1 = bosses.begin(); it1 != bosses.end(); it1++){
+                    if ((*it)->getRect().intersects((*it1)->getRect()))
+                    {
+                        bossHP -=0.1;
+                        if (bossHP <=0){
+                          it1 = bosses.erase(it1);
+                          bossHP = 0;
+                        }
+                    }
+                }
+            }
+
+
+        }
+        if (p.life == true){ //если игрок жив
+            //бежим по списку пуль
+            for (it = Stones.begin(); it != Stones.end(); it++){
+                for (it1 = bosses.begin(); it1 != bosses.end(); it1++){
+                    if ((*it)->getRect().intersects((*it1)->getRect()))
+                    {
+                        bossHP -=0.5;
+                        if (bossHP <=0){
+                          it1 = bosses.erase(it1);
+                          bossHP = 0;
+                        }
+                    }
+                }
+            }
 
 
         }
@@ -645,38 +835,38 @@ int main()
         window.clear();
         /////////////////////////////Рисуем карту/////////////////////
         if(Lvl == 1){
-        for (int i = 0; i < HEIGHT_MAP; i++)
-            for (int j = 0; j < WIDTH_MAP; j++)
-            {
-                if (TileMap[i][j] == ' ') s_map.setTextureRect(IntRect(0, 0, 32, 32));
-                if (TileMap[i][j] == 'S') s_map.setTextureRect(IntRect(32, 0, 32, 32));
-                if (TileMap[i][j] == 's') s_map.setTextureRect(IntRect(64, 0, 32, 32));
-                if (TileMap[i][j] == 'G') s_map.setTextureRect(IntRect(96, 0, 32, 32));
-                if (TileMap[i][j] == 'g') s_map.setTextureRect(IntRect(128, 0, 32, 32));
-                if ((TileMap[i][j] == '0')) s_map.setTextureRect(IntRect(160, 0, 32, 32));
-                if ((TileMap[i][j] == 'C')) s_map.setTextureRect(IntRect(192, 0, 32, 32));
-                if ((TileMap[i][j] == 'c')) s_map.setTextureRect(IntRect(224, 0, 32, 32));
-                if ((TileMap[i][j] == 'M')) s_map.setTextureRect(IntRect(256, 0, 32, 32));
-                if ((TileMap[i][j] == 'm')) s_map.setTextureRect(IntRect(288, 0, 32, 32));
-                if ((TileMap[i][j] == 'N')) s_map.setTextureRect(IntRect(320, 0, 32, 32));
-                if ((TileMap[i][j] == 'n')) s_map.setTextureRect(IntRect(352, 0, 32, 32));
-                if ((TileMap[i][j] == 'U')) s_map.setTextureRect(IntRect(384, 0, 32, 32));
-                if ((TileMap[i][j] == 'u')) s_map.setTextureRect(IntRect(416, 0, 32, 32));
-                if ((TileMap[i][j] == 'h')) s_map.setTextureRect(IntRect(448, 0, 32, 32));
-                if ((TileMap[i][j] == 'i')) s_map.setTextureRect(IntRect(608, 0, 32, 32));
-                if ((TileMap[i][j] == 'd')) s_map.setTextureRect(IntRect(640, 0, 32, 32));
-                if ((TileMap[i][j] == 'p')) s_map.setTextureRect(IntRect(544, 0, 32, 32));
-                if ((TileMap[i][j] == 'e')) s_map.setTextureRect(IntRect(576, 0, 32, 32));
-                if ((TileMap[i][j] == 'b')) s_map.setTextureRect(IntRect(480, 0, 32, 32));
-                if ((TileMap[i][j] == 'j')) s_map.setTextureRect(IntRect(512, 0, 32, 32));
-                if ((TileMap[i][j] == 'L')) s_map.setTextureRect(IntRect(672, 0, 32, 32));
-                if ((TileMap[i][j] == 'l')) s_map.setTextureRect(IntRect(704, 0, 32, 32));
-                if ((TileMap[i][j] == 'V')) s_map.setTextureRect(IntRect(736, 0, 32, 32));
-                if ((TileMap[i][j] == 'v')) s_map.setTextureRect(IntRect(768, 0, 32, 32));
+            for (int i = 0; i < HEIGHT_MAP; i++)
+                for (int j = 0; j < WIDTH_MAP; j++)
+                {
+                    if (TileMap[i][j] == ' ') s_map.setTextureRect(IntRect(0, 0, 32, 32));
+                    if (TileMap[i][j] == 'S') s_map.setTextureRect(IntRect(32, 0, 32, 32));
+                    if (TileMap[i][j] == 's') s_map.setTextureRect(IntRect(64, 0, 32, 32));
+                    if (TileMap[i][j] == 'G') s_map.setTextureRect(IntRect(96, 0, 32, 32));
+                    if (TileMap[i][j] == 'g') s_map.setTextureRect(IntRect(128, 0, 32, 32));
+                    if ((TileMap[i][j] == '0')) s_map.setTextureRect(IntRect(160, 0, 32, 32));
+                    if ((TileMap[i][j] == 'C')) s_map.setTextureRect(IntRect(192, 0, 32, 32));
+                    if ((TileMap[i][j] == 'c')) s_map.setTextureRect(IntRect(224, 0, 32, 32));
+                    if ((TileMap[i][j] == 'M')) s_map.setTextureRect(IntRect(256, 0, 32, 32));
+                    if ((TileMap[i][j] == 'm')) s_map.setTextureRect(IntRect(288, 0, 32, 32));
+                    if ((TileMap[i][j] == 'N')) s_map.setTextureRect(IntRect(320, 0, 32, 32));
+                    if ((TileMap[i][j] == 'n')) s_map.setTextureRect(IntRect(352, 0, 32, 32));
+                    if ((TileMap[i][j] == 'U')) s_map.setTextureRect(IntRect(384, 0, 32, 32));
+                    if ((TileMap[i][j] == 'u')) s_map.setTextureRect(IntRect(416, 0, 32, 32));
+                    if ((TileMap[i][j] == 'h')) s_map.setTextureRect(IntRect(448, 0, 32, 32));
+                    if ((TileMap[i][j] == 'i')) s_map.setTextureRect(IntRect(608, 0, 32, 32));
+                    if ((TileMap[i][j] == 'd')) s_map.setTextureRect(IntRect(640, 0, 32, 32));
+                    if ((TileMap[i][j] == 'p')) s_map.setTextureRect(IntRect(544, 0, 32, 32));
+                    if ((TileMap[i][j] == 'e')) s_map.setTextureRect(IntRect(576, 0, 32, 32));
+                    if ((TileMap[i][j] == 'b')) s_map.setTextureRect(IntRect(480, 0, 32, 32));
+                    if ((TileMap[i][j] == 'j')) s_map.setTextureRect(IntRect(512, 0, 32, 32));
+                    if ((TileMap[i][j] == 'L')) s_map.setTextureRect(IntRect(672, 0, 32, 32));
+                    if ((TileMap[i][j] == 'l')) s_map.setTextureRect(IntRect(704, 0, 32, 32));
+                    if ((TileMap[i][j] == 'V')) s_map.setTextureRect(IntRect(736, 0, 32, 32));
+                    if ((TileMap[i][j] == 'v')) s_map.setTextureRect(IntRect(768, 0, 32, 32));
 
-                s_map.setPosition(j * 32, i * 32);
-                window.draw(s_map);
-            }
+                    s_map.setPosition(j * 32, i * 32);
+                    window.draw(s_map);
+                }
         }
         if (Lvl == 2){
             for (int i = 0; i < HeightMap; i++)
@@ -698,12 +888,6 @@ int main()
                     if ((Map[i][j] == 'U')) s_map.setTextureRect(IntRect(384, 0, 32, 32));
                     if ((Map[i][j] == 'u')) s_map.setTextureRect(IntRect(416, 0, 32, 32));
                     if ((Map[i][j] == 'h')) s_map.setTextureRect(IntRect(448, 0, 32, 32));
-//                    if ((TileMap[i][j] == 'i')) s_map.setTextureRect(IntRect(608, 0, 32, 32));
-//                    if ((TileMap[i][j] == 'd')) s_map.setTextureRect(IntRect(640, 0, 32, 32));
-//                    if ((TileMap[i][j] == 'p')) s_map.setTextureRect(IntRect(544, 0, 32, 32));
-//                    if ((TileMap[i][j] == 'e')) s_map.setTextureRect(IntRect(576, 0, 32, 32));
-//                    if ((TileMap[i][j] == 'b')) s_map.setTextureRect(IntRect(480, 0, 32, 32));
-//                    if ((TileMap[i][j] == 'j')) s_map.setTextureRect(IntRect(512, 0, 32, 32));
                     if ((Map[i][j] == 'L')) s_map.setTextureRect(IntRect(672, 0, 32, 32));
                     if ((Map[i][j] == 'l')) s_map.setTextureRect(IntRect(704, 0, 32, 32));
                     if ((Map[i][j] == 'V')) s_map.setTextureRect(IntRect(736, 0, 32, 32));
@@ -712,7 +896,7 @@ int main()
                     s_map.setPosition(j * 32, i * 32);
                     window.draw(s_map);
                 }
-            }
+        }
 
         if(nextit != Inventory.begin() && nextit != Inventory.end()){
             text.setString("Weapon: FireBoll");
@@ -751,6 +935,15 @@ int main()
         text.setString("Health: " + playerHealthString.str());//задаем строку тексту
         text.setPosition(50, 5);//задаем позицию текста
         window.draw(text);//рисуем этот текст
+
+        if (Lvl == 2){
+        std::ostringstream bossHealthString;
+        bossHealthString << bossHP; //формируем строку
+        text.setString("Health BOSS: " + bossHealthString.str());//задаем строку тексту
+        text.setPosition(50, 30);//задаем позицию текста
+        window.draw(text);//рисуем этот текст
+        }
+
         window.draw(p.sprite);//рисуем спрайт объекта “p” класса “Player”
         if(gameTime < 5){
             text.setString("What am I doing here, I need to go up to this old man to ask");//задаем строку тексту
@@ -758,10 +951,27 @@ int main()
             window.draw(text);//рисую этот текст
         }
         //рисуем врагов
-        for (it = enemies.begin(); it != enemies.end(); it++)
-        {
-            if ((*it)->life) //если враги живы
-                window.draw((*it)->sprite); //рисуем
+        if (Lvl == 1){
+            for (it = enemies.begin(); it != enemies.end(); it++)
+            {
+                if ((*it)->life) //если враги живы
+                    window.draw((*it)->sprite); //рисуем
+            }
+        }
+
+        //рисуем Босса
+        if (Lvl == 2){
+
+            for (it1 = enemies.begin(); it1 != enemies.end(); it1++){
+                {
+                    it1 = enemies.erase(it1);
+                }
+            }
+            for (it = bosses.begin(); it != bosses.end(); it++)
+            {
+                if ((*it)->life) //если босс жив
+                    window.draw((*it)->sprite);
+            }
         }
 
         //        рисуем пули
@@ -839,9 +1049,9 @@ int main()
             if ((dialnum==4)&&(quest1==3))
             {
 
-               text.setString("Thank you, I think u will need it more that i will, good luck");
-               text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
-               window.draw(text);//рисую этот текст
+                text.setString("Thank you, I think u will need it more that i will, good luck");
+                text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
+                window.draw(text);//рисую этот текст
 
             }
             if (dialnum==5)
