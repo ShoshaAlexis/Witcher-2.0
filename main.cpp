@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include "map.h"
 #include "map1.h"
 #include <cmath>
@@ -8,8 +9,7 @@
 #include <windows.h>
 
 using namespace sf;
-int NPCDIAL=0,quest1=1,Lvl = 1;
-
+int NPCDIAL=0,quest1=1,quest2=0,Lvl = 1,track=0,track1=0;
 class Entity {
 public:
     enum { left, right, up, down, stay, upleft, upright, downleft, downright} state;
@@ -587,6 +587,18 @@ int main()
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
     sf::RenderWindow windowm(sf::VideoMode(800, 800), "Main Menu");
     menu(windowm);
+    sf::SoundBuffer buffer;
+    buffer.loadFromFile("fireball.ogg");
+    sf::Sound sound;
+    sound.setBuffer(buffer);
+    sf::SoundBuffer buffer1;
+    buffer1.loadFromFile("rock.ogg");
+    sf::Sound sound1;
+    sound1.setBuffer(buffer1);
+    sf::Music ost1;
+    ost1.openFromFile("music1.ogg");
+    sf::Music ost;
+    ost.openFromFile("music.ogg");
     sf::RenderWindow window(sf::VideoMode(800, 800, desktop.bitsPerPixel), "The Witcher 4");
     window.setKeyRepeatEnabled(false);
     Font font;//шрифт
@@ -656,7 +668,17 @@ int main()
     int createObjectForMapTimer = 0;//Переменная под время для генерирования камней
     while (window.isOpen())
     {
-
+        if ((Lvl==1)&&(track1<50))
+           {
+            ost1.play();
+            track1++;
+            }
+        if ((Lvl==2)&&(track<50))
+        {
+        ost1.stop();
+        ost.play();
+        track++;
+        }
         float time = clock.getElapsedTime().asMicroseconds();
         if (p.life) gameTime = gameTimeClock.getElapsedTime().asSeconds();//игровое время в
         //секундах идёт вперед, пока жив игрок. Перезагружать как time его не надо.
@@ -683,14 +705,16 @@ int main()
             if ((p.Mana-9)>0)//проверка хватит ли маны на выстрел
                 if (Keyboard::isKeyPressed(Keyboard::P))
                 {
+                    sound.play();
                     Bullets.push_back(new Bullet(BulletImage, p.x, p.y, 16, 16, "Bullet", p.state));
                     p.Mana-=10;//тратим ману
                 }
         }
         if(nextit == Inventory.end()){
-            if (Keyboard::isKeyPressed(Keyboard::M))
+            if (Keyboard::isKeyPressed(Keyboard::P))
             {
                 if (p.StoneKD>0.999){
+                    sound1.play();
                     Stones.push_back(new Stone(StoneImage, p.x, p.y, 16, 16, "Stone", p.state));
                     p.StoneKD-=1;
                 }
@@ -756,7 +780,7 @@ int main()
 
         //проверка пересечения с боссом
         if ((invinctime==0)||(invinctime<0))
-            if (p.life == true){//если игрок жив
+            if ((p.life == true)&&(Lvl==2)){//если игрок жив
                 for (it2 = bosses.begin(); it2 != bosses.end(); it2++){//бежим по списку врагов
                     if ((p.getRect().intersects((*it2)->getRect())) && ((*it2)->name == "hardBoss"))
                     {
@@ -767,7 +791,7 @@ int main()
                 }
             }
         invinctime-=0.001;//время неуязвимости постоянно убывает
-        if (p.life == true){ //если игрок жив
+        if ((p.life == true)&&(Lvl==2)){ //если игрок жив
             //бежим по списку пуль
             for (it = Bullets.begin(); it != Bullets.end(); it++){
                 for (it1 = enemies.begin(); it1 != enemies.end(); it1++){
@@ -797,7 +821,7 @@ int main()
             }
         }
 
-        if (p.life == true){ //если игрок жив
+        if ((p.life == true)&&(Lvl==2)){ //если игрок жив
             //бежим по списку пуль
             for (it = Bullets.begin(); it != Bullets.end(); it++){
                 for (it1 = bosses.begin(); it1 != bosses.end(); it1++){
@@ -814,7 +838,7 @@ int main()
 
 
         }
-        if (p.life == true){ //если игрок жив
+        if ((p.life == true)&&(Lvl==2)){ //если игрок жив
             //бежим по списку пуль
             for (it = Stones.begin(); it != Stones.end(); it++){
                 for (it1 = bosses.begin(); it1 != bosses.end(); it1++){
@@ -899,7 +923,7 @@ int main()
         }
 
         if(nextit != Inventory.begin() && nextit != Inventory.end()){
-            text.setString("Weapon: FireBoll");
+            text.setString("Weapon: FireBall");
             text.setPosition(5, 770);//задаем позицию текста, отступая от центра камеры
             window.draw(text);//рисую этот текст
         }
@@ -1034,7 +1058,7 @@ int main()
                 text.setString("But right now, could you take the heart stone from that chest of mine?");
                 text.setPosition(70, 650);//задаем позицию текста, отступая от центра камеры
                 window.draw(text);//рисую этот текст
-                text.setString("This creature is blocking my way, you can take everything else");
+                text.setString("This creature is blocking a way out, you can take everything else");
                 text.setPosition(70, 700);//задаем позицию текста, отступая от центра камеры
                 window.draw(text);//рисую этот текст
                 quest1=2;
@@ -1054,8 +1078,9 @@ int main()
                 window.draw(text);//рисую этот текст
 
             }
-            if (dialnum==5)
+            if (dialnum==5){
                 quest1=4;
+                quest2=1;}
             if (Keyboard::isKeyPressed(Keyboard::J)) dialnum = 0;
 
         }
@@ -1073,7 +1098,7 @@ int main()
             text.setString("A New Begining");//задаем строку тексту
             text.setPosition(70,40);//задаем позицию текста, отступая от центра камеры
             window.draw(text);//рисую этот текст
-            text.setString("Take old mans book from the chest");//задаем строку тексту
+            text.setString("Take old mans heart stone from the chest");//задаем строку тексту
             text.setPosition(70,70);//задаем позицию текста, отступая от центра камеры
             window.draw(text);//рисую этот текст
         }
@@ -1082,11 +1107,29 @@ int main()
             text.setString("A New Begining");//задаем строку тексту
             text.setPosition(70,40);//задаем позицию текста, отступая от центра камеры
             window.draw(text);//рисую этот текст
-            text.setString("Give the book back");//задаем строку тексту
+            text.setString("Give the heart stone back");//задаем строку тексту
             text.setPosition(70,70);//задаем позицию текста, отступая от центра камеры
             window.draw(text);//рисую этот текст
         }
+        if (quest2==1){
+            text.setString("Big trouble in a small dungeon");//задаем строку тексту
+            text.setPosition(70,60);//задаем позицию текста, отступая от центра камеры
+            window.draw(text);//рисую этот текст
+            text.setString("Defeat the monster");//задаем строку тексту
+            text.setPosition(70,80);//задаем позицию текста, отступая от центра камеры
+            window.draw(text);//рисую этот текст
+        }
+        if (bossHP<=0){
+            quest2=2;
+            text.setString("Big trouble in a small dungeon");//задаем строку тексту
+            text.setPosition(250,300);//задаем позицию текста, отступая от центра камеры
+            window.draw(text);//рисую этот текст
+            text.setString("Quest complete! Thanks 4 playing!");//задаем строку тексту
+            text.setPosition(250,350);//задаем позицию текста, отступая от центра камеры
+            window.draw(text);//рисую этот текст
+        }
         window.display();
+
     }
     return 0;
 }
