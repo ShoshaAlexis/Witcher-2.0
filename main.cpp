@@ -645,9 +645,9 @@ int main()
     std::list<Entity*>::iterator it1;
     std::list<Entity*>::iterator it2;
     std::list<int>::iterator nextit;
-    const int ENEMY_COUNT = 0; //максимальное количество врагов в игре
+    const int ENEMY_COUNT = 2; //максимальное количество врагов в игре
     const int BOSS_COUNT = 1;
-    int enemiesCount = 0; //текущее количество врагов в игре
+    int enemiesCount = 2; //текущее количество врагов в игре
     int bossesCount = 1;
     float bossHP = 100;
     nextit = Inventory.begin();
@@ -795,7 +795,7 @@ int main()
                 }
             }
         invinctime-=0.001;//время неуязвимости постоянно убывает
-        if ((p.life == true)&&(Lvl==2)){ //если игрок жив
+        if ((p.life == true)&&(Lvl==1)){ //если игрок жив
             //бежим по списку пуль
             for (it = Bullets.begin(); it != Bullets.end(); it++){
                 for (it1 = enemies.begin(); it1 != enemies.end(); it1++){
