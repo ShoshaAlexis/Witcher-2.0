@@ -7,9 +7,9 @@
 #include <cmath>
 #include <list>
 #include <windows.h>
-
+using namespace std;
 using namespace sf;
-int NPCDIAL=0,quest1=1,quest2=0,Lvl = 1,track=0,track1=0;
+int NPCDIAL=0,quest1=1,quest2=0,Lvl = 1,track=0,track1=0, difficult = 0;
 class Entity {
 public:
     enum { left, right, up, down, stay, upleft, upright, downleft, downright} state;
@@ -31,7 +31,7 @@ public:
         speed = 0;
         CurrentFrame = 0;
         health = 100;
-        Mana = 10;//задаем значение манки
+        Mana = 20;//задаем значение манки
         StoneKD = 1;
         life = true; //инициализировали логическую переменную жизни, герой жив
         texture.loadFromImage(image); //заносим наше изображение в текстуру
@@ -459,14 +459,112 @@ public:
             for (int i = y / 32; i < (y + h) / 32; i++)//проходимся по элементам карты
                 for (int j = x / 32; j < (x + w) / 32; j++)
                 {
-                    if (TileMap[i][j] == '0' || TileMap[i][j] == 'L' || TileMap[i][j] == 'l')//если элемент наш тайлик земли, то
+
+                    if ((TileMap[i][j] == '0' || TileMap[i][j] == 'L' || TileMap[i][j] == 'l') && (Lvl == 1))//если элемент наш тайлик земли, то
                         life = false;// то пуля умирает
-                    if (Map[i][j] == '0' || Map[i][j] == 'L' || Map[i][j] == 'l')//если элемент наш тайлик двери, то
+                    if ((Map[i][j] == '0' || Map[i][j] == 'L' || Map[i][j] == 'l') && (Lvl == 2))//если элемент наш тайлик двери, то
                         life = false;// то пуля умирает
+                    }
+
+
                 }
             sprite.setPosition(x + w / 2, y + h / 2);//задается позицию пули
         }
+    };
+
+class RickoshetFB :public Entity{//класс пули
+public:
+    int direction;//направление пули
+    int lifetime;
+    //всё так же, только взяли в конце состояние игрока (int dir)
+    //для задания направления полёта пули
+    RickoshetFB(Image &image, float X, float Y, int W, int H, std::string Name, int dir, int lftime)
+        :Entity(image, X, Y, W, H, Name){
+        x = X;
+        y = Y;
+        direction = dir;
+        speed = 0.5;
+        lifetime = lftime;
+        w = h = 16;
+        life = true;
+
     }
+    void checkCollisionWithMap(float Dx, float Dy)//ф-ция проверки столкновений с картой
+    {
+        for (int i = y / 32; i < (y + h) / 32; i++)
+            for (int j = x / 32; j<(x + w) / 32; j++) {
+                if ((TileMap[i][j] == '0' || TileMap[i][j] == 'L' || TileMap[i][j] == 'l') && (Lvl == 1)) {
+                    if (Dy > 0) {
+                        y = i * 32 - h; dy = -0.4;
+                        direction = rand();
+                    }
+                    if (Dy < 0) {
+                        y = i * 32 + 32; dy = 0.4;
+                        direction = rand();
+
+                    }
+                    if (Dx > 0) {
+                        x = j * 32 - w; dx = -0.4;
+                        direction = rand();
+                    }
+                    if (Dx < 0) {
+                        x = j * 32 + 32; dx = 0.4;
+                        direction = rand();
+                    }
+                }
+                if ((Map[i][j] == '0' || Map[i][j] == 'L' || Map[i][j] == 'l') && (Lvl == 2)) {
+                    if (Dy > 0) {
+                        y = i * 32 - h; dy = -0.4;
+                        direction = rand();
+                    }
+                    if (Dy < 0) {
+                        y = i * 32 + 32; dy = 0.4;
+                        direction = rand();
+                    }
+                    if (Dx > 0) {
+                        x = j * 32 - w; dx = -0.4;
+                        direction = rand();
+                    }
+                    if (Dx < 0) {
+                        x = j * 32 + 32; dx = 0.4;
+                        direction = rand();
+                    }
+            }
+        }
+    }
+    void update(float time)
+    {
+        switch (direction)
+        {
+        case 0: dx = -speed; dy = 0; break;// state = left
+        case 1: dx = speed; dy = 0; break;// state = right
+        case 2: dx = 0; dy = -speed; break;// state = up
+        case 3: dx = 0; dy = speed; break;// state = down
+        case 4: dx = speed; dy = -speed; break;// state = left
+        case 5: dx = -speed*0.7; dy = -speed*0.7; break;// state = upright
+        case 6: dx = speed*0.7; dy = -speed*0.7; break;// state = upleft
+        case 7: dx = -speed*0.7; dy = speed*0.7; break;// state = downleft
+        case 8: dx = speed*0.7; dy = speed*0.7; break;// state = downright
+        }
+
+        if (life){
+            x += dx*time;//само движение пули по х
+            if (x <= 0) x = 20;
+            if (x >= 800) x = 780;
+            checkCollisionWithMap(dx, 0);
+            y += dy*time;//по у+-
+            if (y <= 0) y = 20;
+            if (y >= 800) y = 780;
+            checkCollisionWithMap(0, dy);
+            sprite.setPosition(x,y);
+            sprite.setPosition(x + w / 2, y + h / 2);
+            if (lifetime != 0)
+                lifetime -=0.1;
+            else
+                life = false;
+
+            }
+        }
 };
 
 
@@ -511,9 +609,9 @@ public:
             for (int i = y / 32; i < (y + h) / 32; i++)
                 for (int j = x / 32; j < (x + w) / 32; j++)
                 {
-                    if ((TileMap[i][j] == '0'))
+                    if ((TileMap[i][j] == '0') && (Lvl == 1))
                         life = false;
-                    if ((Map[i][j] == '0'))
+                    if ((Map[i][j] == '0') && (Lvl == 2))
                         life = false;
                     if ((abs(x-x1)>100)||(abs(y-y1)>100))
                         life = false;
@@ -554,6 +652,7 @@ void menu(sf::RenderWindow &window) {
     bool isMenu = 1;
     int menuNum = 0;
     menu1.setPosition(320, 430);
+
     menuBg.setPosition(0, 0);
 
     //////////////////////////////МЕНЮ///////////////////
@@ -599,6 +698,10 @@ int main()
     buffer1.loadFromFile("rock.ogg");
     sf::Sound sound1;
     sound1.setBuffer(buffer1);
+    sf::SoundBuffer buffer2;
+    buffer2.loadFromFile("RFB.ogg");
+    sf::Sound sound2;
+    sound2.setBuffer(buffer2);
     sf::Music ost1;
     ost1.openFromFile("music1.ogg");
     sf::Music ost;
@@ -631,6 +734,8 @@ int main()
     hit.loadFromFile("images/hit.png");
     Image BulletImage;//изображение для пули
     BulletImage.loadFromFile("images/bullet.png");//загрузили картинку в объект изображения
+    Image RFBImage;//изображение для пули
+    RFBImage.loadFromFile("images/RFB.png");//загрузили картинку в объект изображения
 
     Image StoneImage;//изображение для пули
     StoneImage.loadFromFile("images/stone.png");//загрузили картинку в объект изображения
@@ -640,14 +745,15 @@ int main()
     std::list<Entity*> Effects;
     std::list<Entity*> Stones;
     std::list<Entity*> bosses;
+    std::list<Entity*> RFB;
     std::list<int> Inventory = {0,1,2};
     std::list<Entity*>::iterator it;
     std::list<Entity*>::iterator it1;
     std::list<Entity*>::iterator it2;
     std::list<int>::iterator nextit;
-    const int ENEMY_COUNT = 0; //максимальное количество врагов в игре
+    const int ENEMY_COUNT = 2; //максимальное количество врагов в игре
     const int BOSS_COUNT = 1;
-    int enemiesCount = 0; //текущее количество врагов в игре
+    int enemiesCount = 2; //текущее количество врагов в игре
     int bossesCount = 1;
     float bossHP = 100;
     nextit = Inventory.begin();
@@ -658,7 +764,7 @@ int main()
         float xr = 150 + rand() % 500; // случайная координата врага на поле игры по оси “x”
         float yr = 150 + rand() % 350; // случайная координата врага на поле игры по оси “y”
         //создаем врагов и помещаем в список
-        enemies.push_back(new Enemy(easyEnemyImage, xr, yr, 96, 96, "EasyEnemy"));
+        enemies.push_back(new Enemy(easyEnemyImage, xr, yr, 76, 76, "EasyEnemy"));
         enemiesCount += 1; //увеличили счётчик врагов
     }
     for (int i = 0; i < BOSS_COUNT; i++)
@@ -724,7 +830,15 @@ int main()
                 }
             }
         }
-
+        if(nextit == Inventory.begin()){
+            if ((p.Mana-19)>0)//проверка хватит ли маны на выстрел
+                if (Keyboard::isKeyPressed(Keyboard::P))
+                {
+                    sound2.play();
+                    RFB.push_back(new RickoshetFB(RFBImage, p.x, p.y, 16, 16, "RFB", p.state, 3000));
+                    p.Mana-=20;//тратим ману
+                }
+        }
         p.update(time); //оживляем объект “p” класса “Player”
         //оживляем врагов
         if (Lvl == 1){
@@ -756,6 +870,10 @@ int main()
         {
             (*it)->update(time);
         }
+        for (it = RFB.begin(); it != RFB.end(); it++)
+        {
+            (*it)->update(time); //запускаем метод update()
+        }
         //Проверяем список на наличие "мертвых" пуль и удаляем их
         for (it = Bullets.begin(); it != Bullets.end(); )//говорим что проходимся от начала до конца
         {// если этот объект мертв, то удаляем его
@@ -765,6 +883,11 @@ int main()
         for (it = Stones.begin(); it != Stones.end(); )
         {
             if ((*it)-> life == false) { it = Stones.erase(it); }
+            else it++;//и идем курсором (итератором) к след объекту.
+        }
+        for (it = RFB.begin(); it != RFB.end(); )//говорим что проходимся от начала до конца
+        {// если этот объект мертв, то удаляем его
+            if ((*it)-> life == false) { it = RFB.erase(it); }
             else it++;//и идем курсором (итератором) к след объекту.
         }
         //Проверка пересечения игрока с врагами
@@ -795,7 +918,7 @@ int main()
                 }
             }
         invinctime-=0.001;//время неуязвимости постоянно убывает
-        if ((p.life == true)&&(Lvl==2)){ //если игрок жив
+        if ((p.life == true)&&(Lvl==1)){ //если игрок жив
             //бежим по списку пуль
             for (it = Bullets.begin(); it != Bullets.end(); it++){
                 for (it1 = enemies.begin(); it1 != enemies.end(); it1++){
@@ -809,10 +932,23 @@ int main()
 
 
         }
+        if ((p.life == true)&&(Lvl==1)){ //если игрок жив
+            //бежим по списку пуль
+            for (it = RFB.begin(); it != RFB.end(); it++){
+                for (it1 = enemies.begin(); it1 != enemies.end(); it1++){
+                    if ((*it)->getRect().intersects((*it1)->getRect()))
+                    {
+                        it1 = enemies.erase(it1);
+                        it = enemies.erase(it);
+                    }
+                }
+            }
 
 
+        }
 
-        if (p.life == true){
+
+        if ((p.life == true)&&(Lvl==1)){
 
             for (it = Stones.begin(); it != Stones.end(); it++){
                 for (it1 = enemies.begin(); it1 != enemies.end(); it1++){
@@ -860,8 +996,26 @@ int main()
 
         }
 
+        if ((p.life == true)&&(Lvl==2)){ //если игрок жив
+            //бежим по списку пуль
+            for (it = RFB.begin(); it != RFB.end(); it++){
+                for (it1 = bosses.begin(); it1 != bosses.end(); it1++){
+                    if ((*it)->getRect().intersects((*it1)->getRect()))
+                    {
+                        bossHP -=0.8;
+                        if (bossHP <=0){
+                          it1 = bosses.erase(it1);
+                          bossHP = 0;
+                        }
+                    }
+                }
+            }
+        }
+
+
         window.clear();
         /////////////////////////////Рисуем карту/////////////////////
+
         if(Lvl == 1){
             for (int i = 0; i < HEIGHT_MAP; i++)
                 for (int j = 0; j < WIDTH_MAP; j++)
@@ -926,18 +1080,20 @@ int main()
                 }
         }
 
-        if(nextit != Inventory.begin() && nextit != Inventory.end()){
-            text.setString("Weapon: FireBall");
-            text.setPosition(5, 770);//задаем позицию текста, отступая от центра камеры
-            window.draw(text);//рисую этот текст
-        }
         if(nextit == Inventory.begin()){
 
-            text.setString("No Weapon,Press key I for change weapon");//задаем строку тексту
+            text.setString("Weapon: Rickoshet FireBall (20 mana)");//задаем строку тексту
             text.setPosition(5, 770);//задаем позицию текста, отступая от центра камеры
             window.draw(text);//рисую этот текст
 
         }
+
+        if(nextit != Inventory.begin() && nextit != Inventory.end()){
+            text.setString("Weapon: FireBall (10 mana)");
+            text.setPosition(5, 770);//задаем позицию текста, отступая от центра камеры
+            window.draw(text);//рисую этот текст
+        }
+
         if(nextit == Inventory.end()){
 
             text.setString("Weapon: Stone");//задаем строку тексту
@@ -1019,8 +1175,14 @@ int main()
             if ((*it)->life) //если пули живы
                 window.draw((*it)->sprite); //рисуем объекты
         }
-        if ((p.Mana<10))//восстановление маны
-            p.Mana+=0.004;
+
+        for (it = RFB.begin(); it != RFB.end(); it++)
+        {
+            if ((*it)->life) //если пули живы
+                window.draw((*it)->sprite); //рисуем объекты
+        }
+        if ((p.Mana<20))//восстановление маны
+            p.Mana+=0.002;
 
         if ((p.StoneKD<1))//поиск камня
             p.StoneKD+=0.001;
@@ -1198,8 +1360,10 @@ int main()
             text.setPosition(250,350);//задаем позицию текста, отступая от центра камеры
             window.draw(text);//рисую этот текст
         }
+
         window.display();
 
     }
     return 0;
 }
+
