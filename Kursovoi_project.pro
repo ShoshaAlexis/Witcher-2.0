@@ -5,7 +5,7 @@ CONFIG -= qt
 CONFIG += C++11
 
 
-LIBS += -L"SFML-2.3.2\lib"
+LIBS += -L"D:\SFML\lib"
 
 CONFIG(release, debug|release):
 LIBS += -lsfml-audio -lsfml-graphics -lsfml-main -lsfml-network -lsfml-window -lsfml-system
@@ -13,7 +13,7 @@ LIBS += -lsfml-audio -lsfml-graphics -lsfml-main -lsfml-network -lsfml-window -l
 CONFIG(debug, debug|release):
 LIBS += -lsfml-audio-d -lsfml-graphics-d -lsfml-main-d -lsfml-network-d -lsfml-window-d -lsfml-system-d
 
-INCLUDEPATH += "SFML-2.3.2\include"
+INCLUDEPATH += "D:\SFML\include"
 
 SOURCES += main.cpp
 
