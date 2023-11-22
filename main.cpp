@@ -30,8 +30,8 @@ public:
         dx = 0; dy = 0;
         speed = 0;
         CurrentFrame = 0;
-        health = 100;
-        Mana = 20;//задаем значение манки
+        health = 150-(difficult*25);
+        Mana = 40 - (10*difficult);//задаем значение манки
         StoneKD = 1;
         life = true; //инициализировали логическую переменную жизни, герой жив
         texture.loadFromImage(image); //заносим наше изображение в текстуру
@@ -65,36 +65,36 @@ public:
     void control(){
         if (Keyboard::isKeyPressed(Keyboard::Left) || Keyboard::isKeyPressed(Keyboard::A)) {
             state = left;
-            speed = 0.1;
+            speed = 0.15;
         }
         if (Keyboard::isKeyPressed(Keyboard::Right) || Keyboard::isKeyPressed(Keyboard::D)) {
             state = right;
-            speed = 0.1;
+            speed = 0.15;
         }
         if (Keyboard::isKeyPressed(Keyboard::Up) || Keyboard::isKeyPressed(Keyboard::W) ) {
             state = up;
-            speed = 0.1;
+            speed = 0.15;
         }
         if (Keyboard::isKeyPressed(Keyboard::Down) || Keyboard::isKeyPressed(Keyboard::S)) {
             state = down;
-            speed = 0.1;
+            speed = 0.15;
         }
         if ((Keyboard::isKeyPressed(Keyboard::Up) || Keyboard::isKeyPressed(Keyboard::W))&&(Keyboard::isKeyPressed(Keyboard::Left) || Keyboard::isKeyPressed(Keyboard::A))) {
             state = upleft;
-            speed = 0.1;
+            speed = 0.15;
         }
 
         if ((Keyboard::isKeyPressed(Keyboard::Down) || Keyboard::isKeyPressed(Keyboard::S))&&(Keyboard::isKeyPressed(Keyboard::Left) || Keyboard::isKeyPressed(Keyboard::A))) {
             state = downleft;
-            speed = 0.1;
+            speed = 0.15;
         }
         if ((Keyboard::isKeyPressed(Keyboard::Up) || Keyboard::isKeyPressed(Keyboard::W))&&(Keyboard::isKeyPressed(Keyboard::Right) || Keyboard::isKeyPressed(Keyboard::D))) {
             state = upright;
-            speed = 0.1;
+            speed = 0.15;
         }
         if ((Keyboard::isKeyPressed(Keyboard::Down) || Keyboard::isKeyPressed(Keyboard::S))&&(Keyboard::isKeyPressed(Keyboard::Right) || Keyboard::isKeyPressed(Keyboard::D))) {
             state = downright;
-            speed = 0.1;
+            speed = 0.15;
         }
     }
     //Метод проверки столкновений с элементами карты
@@ -253,7 +253,7 @@ public:
             sprite.setTextureRect(IntRect(0, 0, w, h));
             direction = rand() % (3); //Направление движения врага задаём случайным образом
             //через генератор случайных чисел
-            speed = 0.1;//даем скорость.этот объект всегда двигается
+            speed = 0.1+(0.05*difficult);//даем скорость.этот объект всегда двигается
             dx = speed;
         }
     }
@@ -342,7 +342,7 @@ public:
             sprite.setTextureRect(IntRect(0, 0, w, h));
             direction = rand() % (3); //Направление движения врага задаём случайным образом
             //через генератор случайных чисел
-            speed = 0.15;//даем скорость.этот объект всегда двигается
+            speed = 0.15+(0.05*difficult);//даем скорость.этот объект всегда двигается
             dx = speed;
         }
     }
@@ -430,7 +430,7 @@ public:
         y = Y;
         direction = dir;
         speed = 0.8;
-        w = h = 16;
+        w = h = 2;
         life = true;
         //выше инициализация в конструкторе
     }
@@ -485,7 +485,7 @@ public:
         direction = dir;
         speed = 0.5;
         lifetime = lftime;
-        w = h = 16;
+        w = h = 2;
         life = true;
 
     }
@@ -643,14 +643,18 @@ public:
     }
 };
 
-void menu(sf::RenderWindow &window) {
-    Texture menuTexture1, menuBackground;
-    menuTexture1.loadFromFile("images/111.png");
+int menu(sf::RenderWindow &window) {
+    Texture menuTexture1, diff1,diff2,diff3, menuBackground;
+    menuTexture1.loadFromFile("images/test.png");
     menuBackground.loadFromFile("images/witcher.png");
-    Sprite menu1(menuTexture1), menuBg(menuBackground);
+    diff1.loadFromFile("images/easy.png");
+    diff2.loadFromFile("images/medium.png");
+    diff3.loadFromFile("images/hard.png");
+
+    Sprite menu1(menuTexture1), menuBg(menuBackground), dfclt1(diff1), dfclt2(diff2), dfclt3(diff3);
     menuBg.setScale(sf::Vector2f(2,2));
     bool isMenu = 1;
-    int menuNum = 0;
+    int menuNum, helper;
     menu1.setPosition(320, 430);
 
     menuBg.setPosition(0, 0);
@@ -658,29 +662,59 @@ void menu(sf::RenderWindow &window) {
     //////////////////////////////МЕНЮ///////////////////
     while (isMenu)
     {
-        menu1.setColor(Color::White);
+        window.setKeyRepeatEnabled(false);
         menuNum = 0;
+        helper = 500;
+        menu1.setColor(Color::White);
         window.clear(Color(129, 181, 221));
 
-        if (IntRect(320, 430, 300, 50).contains(Mouse::getPosition(window))) { menu1.setColor(Color::Blue); menuNum = 1; }
-
-        if (Mouse::isButtonPressed(Mouse::Left))
-        {
-            if (menuNum == 1) {isMenu = false; isMenu = false; window.close();}
-
-        }
-
+        if (IntRect(320, 430, 300, 50).contains(Mouse::getPosition(window))) { menu1.setColor(Color::Blue); menuNum = 1;}
+            if (Mouse::isButtonPressed(Mouse::Left)){
+                if (menuNum == 1){
+                    while(isMenu){
+                    if (helper != 0)
+                        helper -= 0.1;
+                    dfclt1.setColor(Color::White);
+                    dfclt2.setColor(Color::White);
+                    dfclt3.setColor(Color::White);
+                    dfclt1.setPosition(320, 330);
+                    dfclt2.setPosition(320, 430);
+                    dfclt3.setPosition(320, 530);
+                    if (IntRect(320, 330, 300, 50).contains(Mouse::getPosition(window)))
+                    {dfclt1.setColor(Color::Blue); menuNum = 2;}
+                    if (IntRect(320, 430, 300, 50).contains(Mouse::getPosition(window)))
+                    {dfclt2.setColor(Color::Blue); menuNum = 3;}
+                    if (IntRect(320, 530, 300, 50).contains(Mouse::getPosition(window)))
+                    {dfclt3.setColor(Color::Blue); menuNum = 4;}
+                    if (Mouse::isButtonPressed(Mouse::Left)){
+                        if (menuNum == 2)
+                        {difficult = 0; isMenu = false; window.close();}
+                        if ((menuNum == 3) && (helper == 0))
+                        {difficult = 1; isMenu = false; window.close();}
+                        if (menuNum == 4)
+                        {difficult = 2; isMenu = false; window.close();}
+                        }
+                    window.draw(menuBg);
+                    window.draw(dfclt1);
+                    window.draw(dfclt2);
+                    window.draw(dfclt3);
+                    window.display();
+                    }
+                }
+               }
         window.draw(menuBg);
         window.draw(menu1);
-
         window.display();
 
     }
+    return difficult;
 }
 
 
 int main()
 {
+    bool alive = true;
+    while(alive){
     float invinctime = 0;//объявляем переменную времени неуязвмости, можно объявить её в Entity, напомните ёё перенести
     float dialnum=0; // номер диалога
     float dialtime=0; //время для учета кулдауна на прочтение диалога
@@ -751,26 +785,26 @@ int main()
     std::list<Entity*>::iterator it1;
     std::list<Entity*>::iterator it2;
     std::list<int>::iterator nextit;
-    const int ENEMY_COUNT = 2; //максимальное количество врагов в игре
+    const int ENEMY_COUNT = 2+(pow(2,difficult)); //максимальное количество врагов в игре
     const int BOSS_COUNT = 1;
-    int enemiesCount = 2; //текущее количество врагов в игре
+    int enemiesCount =2;
     int bossesCount = 1;
-    float bossHP = 100;
+    float bossHP = 100+(difficult*12.5);
     nextit = Inventory.begin();
     //Заполняем список объектами врагами
 
     for (int i = 0; i < ENEMY_COUNT; i++)
     {
-        float xr = 150 + rand() % 500; // случайная координата врага на поле игры по оси “x”
-        float yr = 150 + rand() % 350; // случайная координата врага на поле игры по оси “y”
+        float xr = 400 + rand() % 100; // случайная координата врага на поле игры по оси “x”
+        float yr = 600 + rand() % 50; // случайная координата врага на поле игры по оси “y”
         //создаем врагов и помещаем в список
         enemies.push_back(new Enemy(easyEnemyImage, xr, yr, 76, 76, "EasyEnemy"));
         enemiesCount += 1; //увеличили счётчик врагов
     }
     for (int i = 0; i < BOSS_COUNT; i++)
     {
-        float xr = 300 + rand() % 500; // случайная координата врага на поле игры по оси “x”
-        float yr = 300 + rand() % 350; // случайная координата врага на поле игры по оси “y”
+        float xr = 400; // случайная координата врага на поле игры по оси “x”
+        float yr = 600; // случайная координата врага на поле игры по оси “y”
         //создаем врагов и помещаем в список
         bosses.push_back(new Boss(hardBossImage, xr, yr, 96, 96, "hardBoss"));
         bossesCount += 1; //увеличили счётчик врагов
@@ -820,7 +854,7 @@ int main()
                     p.Mana-=10;//тратим ману
                 }
         }
-        if(nextit == Inventory.end()){
+        if(nextit == Inventory.begin()){
             if (Keyboard::isKeyPressed(Keyboard::P))
             {
                 if (p.StoneKD>0.999){
@@ -830,7 +864,7 @@ int main()
                 }
             }
         }
-        if(nextit == Inventory.begin()){
+        if(nextit == Inventory.end()){
             if ((p.Mana-19)>0)//проверка хватит ли маны на выстрел
                 if (Keyboard::isKeyPressed(Keyboard::P))
                 {
@@ -885,10 +919,10 @@ int main()
             if ((*it)-> life == false) { it = Stones.erase(it); }
             else it++;//и идем курсором (итератором) к след объекту.
         }
-        for (it = RFB.begin(); it != RFB.end(); )//говорим что проходимся от начала до конца
-        {// если этот объект мертв, то удаляем его
+        for (it = RFB.begin(); it != RFB.end(); )
+        {
             if ((*it)-> life == false) { it = RFB.erase(it); }
-            else it++;//и идем курсором (итератором) к след объекту.
+            else it++;
         }
         //Проверка пересечения игрока с врагами
         //Если пересечение произошло, то "health = 75", игрок обездвижевается и
@@ -898,7 +932,7 @@ int main()
                 for (it = enemies.begin(); it != enemies.end(); it++){//бежим по списку врагов
                     if ((p.getRect().intersects((*it)->getRect())) && ((*it)->name == "EasyEnemy"))
                     {
-                        p.health -=25;//вычитаем 25 хп при уроне
+                        p.health -=10+(12.5*difficult);//вычитаем 25 хп при уроне
                         invinctime=2.5;//даем неуязвимость на короткий промежуток времени
                         Effects.push_back(new Effect(hit, p.x, p.y, 16, 16, "hit", 500));
                     }
@@ -911,7 +945,7 @@ int main()
                 for (it2 = bosses.begin(); it2 != bosses.end(); it2++){//бежим по списку врагов
                     if ((p.getRect().intersects((*it2)->getRect())) && ((*it2)->name == "hardBoss"))
                     {
-                        p.health -=50;
+                        p.health -=25+(12.5*difficult);
                         invinctime=2.5;
                         Effects.push_back(new Effect(hit, p.x, p.y, 16, 16, "hit", 500));
                     }
@@ -932,8 +966,7 @@ int main()
 
 
         }
-        if ((p.life == true)&&(Lvl==1)){ //если игрок жив
-            //бежим по списку пуль
+        if ((p.life == true)&&(Lvl==1)){
             for (it = RFB.begin(); it != RFB.end(); it++){
                 for (it1 = enemies.begin(); it1 != enemies.end(); it1++){
                     if ((*it)->getRect().intersects((*it1)->getRect()))
@@ -946,7 +979,6 @@ int main()
 
 
         }
-
 
         if ((p.life == true)&&(Lvl==1)){
 
@@ -967,7 +999,7 @@ int main()
                 for (it1 = bosses.begin(); it1 != bosses.end(); it1++){
                     if ((*it)->getRect().intersects((*it1)->getRect()))
                     {
-                        bossHP -=0.1;
+                        bossHP -=(0.8/(difficult+1));
                         if (bossHP <=0){
                           it1 = bosses.erase(it1);
                           bossHP = 0;
@@ -984,7 +1016,7 @@ int main()
                 for (it1 = bosses.begin(); it1 != bosses.end(); it1++){
                     if ((*it)->getRect().intersects((*it1)->getRect()))
                     {
-                        bossHP -=0.5;
+                        bossHP -=(1/(difficult+1));
                         if (bossHP <=0){
                           it1 = bosses.erase(it1);
                           bossHP = 0;
@@ -996,13 +1028,12 @@ int main()
 
         }
 
-        if ((p.life == true)&&(Lvl==2)){ //если игрок жив
-            //бежим по списку пуль
+        if ((p.life == true)&&(Lvl==2)){
             for (it = RFB.begin(); it != RFB.end(); it++){
                 for (it1 = bosses.begin(); it1 != bosses.end(); it1++){
                     if ((*it)->getRect().intersects((*it1)->getRect()))
                     {
-                        bossHP -=0.8;
+                        bossHP -=(1.8/(difficult+1));
                         if (bossHP <=0){
                           it1 = bosses.erase(it1);
                           bossHP = 0;
@@ -1082,21 +1113,21 @@ int main()
 
         if(nextit == Inventory.begin()){
 
-            text.setString("Weapon: Rickoshet FireBall (20 mana)");//задаем строку тексту
+            text.setString("Weapon: Stone");//задаем строку тексту
             text.setPosition(5, 770);//задаем позицию текста, отступая от центра камеры
             window.draw(text);//рисую этот текст
 
         }
-
         if(nextit != Inventory.begin() && nextit != Inventory.end()){
             text.setString("Weapon: FireBall (10 mana)");
             text.setPosition(5, 770);//задаем позицию текста, отступая от центра камеры
             window.draw(text);//рисую этот текст
         }
 
+
         if(nextit == Inventory.end()){
 
-            text.setString("Weapon: Stone");//задаем строку тексту
+            text.setString("Weapon: Rickoshet FireBall (20 mana)");//задаем строку тексту
             text.setPosition(5, 770);//задаем позицию текста, отступая от центра камеры
             window.draw(text);//рисую этот текст
 
@@ -1360,10 +1391,11 @@ int main()
             text.setPosition(250,350);//задаем позицию текста, отступая от центра камеры
             window.draw(text);//рисую этот текст
         }
-
         window.display();
-
+            if (p.health<0){alive = false; break;}
+        }
     }
     return 0;
+    exit;
 }
 
